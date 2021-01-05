@@ -15,11 +15,14 @@ class File(object):
         self.owns = []
         return
 
+    def __copy__(self):
+        return File(self.__filename,self.__file_type,self.owned_by)
+
     def __str__(self):
         return self.filename
 
-    def __repr__(self):
-        return self.filename
+    #def __repr__(self):
+    #    return self.filename
 
     #文件名
     @property
@@ -86,11 +89,11 @@ class File(object):
 
     # 为文件返回文件url
     def get_concrete_url(self,base_url = ''):
-        url = '/' + self.filename
+        url = self.filename
         file = self
         while file.owned_by:
             file = file.owned_by
-            url = '/' + file.filename + url
+            url = file.filename + '\\' + url
         return base_url + url
 
 
@@ -124,3 +127,6 @@ if __name__ == "__main__":
     file_a.print_tree()
 
     print(file_d.get_concrete_url())
+    file_copy = file_a.__copy__()
+    print('tree 5:')
+    file_copy.print_tree()

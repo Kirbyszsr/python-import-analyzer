@@ -33,13 +33,15 @@ class FileAnalyzer:
             if root_file.is_type("file"):
                 is_suffix_file = root_file.get_suffix == suffix
                 if is_suffix_file:
-                    file_node = File(root_file)
+                    file_node = root_file.__copy__()
                     return True, file_node
+                else:
+                    return False, None
             else:
                 if root_file.is_type("folder"):
-                    file_node = File(root_file)
+                    file_node = root_file.__copy__()
                     for file in root_file.owns:
-                        has_suffix_file,child_file_node = FileAnalyzer.file_suffix_analyze(suffix,file)
+                        has_suffix_file, child_file_node = FileAnalyzer.file_suffix_analyze(suffix,file)
                         if has_suffix_file:
                             root_has_suffix_file = True
                             file_node.add(child_file_node)
@@ -49,4 +51,6 @@ class FileAnalyzer:
 if __name__ == "__main__":
     file_system = FileAnalyzer.file_analyze(root_dir='D:\\BaiduNetdiskDownload\\MATLAB\\R2010b\\extern')
     file_system.print_tree()
-    file_system_suffix_Lib = FileAnalyzer.file_suffix_analyze('Lib',file_system)
+    has_tree,file_system_suffix_Lib = FileAnalyzer.file_suffix_analyze('Lib',file_system)
+    print('lib tree:')
+    file_system_suffix_Lib.print_tree()

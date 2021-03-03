@@ -31,7 +31,7 @@ class File(object):
 
     @property
     def get_suffix(self):
-        return self.__filename.split(".")[-1]
+        return self.__filename.split(".")[-1].lower()
     #文件种类:
     #
     # file:文件
@@ -76,6 +76,19 @@ class File(object):
                 file.owned_by = None
                 return
 
+    # 寻找文件夹下所属文件
+    def find(self,name=''):
+        if self.is_type('folder'):
+            if name == '':
+                return self.owns
+            for file in self.owns:
+                if file.filename.lower() == name.lower():
+                    return file
+        return None
+
+    def find_all(self):
+        return self.find()
+
     # 绘制树的关系图
     def print_tree(self,root=0):
         for i in range(1,root):
@@ -87,7 +100,8 @@ class File(object):
             file.print_tree(root + 1)
         return
 
-    # 为文件返回文件url
+
+    #为文件返回文件url
     def get_concrete_url(self,base_url = ''):
         url = self.filename
         file = self

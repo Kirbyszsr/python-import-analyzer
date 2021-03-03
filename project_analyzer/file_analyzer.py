@@ -25,12 +25,14 @@ class FileAnalyzer:
     # 为文件寻找到一棵最小文件树，使得里面的文件全部包含同一个子域名
     @staticmethod
     def file_suffix_analyze(suffix=None,root_file=None):
+        suffix = suffix.lower()
         root = root_file
         root_has_suffix_file = False
         if root_file is None or not isinstance(root,File):
             return False,None
         else:
             if root_file.is_type("file"):
+                # 检查要使用大小写不敏感的搜索方式
                 is_suffix_file = root_file.get_suffix == suffix
                 if is_suffix_file:
                     file_node = root_file.__copy__()
@@ -45,12 +47,20 @@ class FileAnalyzer:
                         if has_suffix_file:
                             root_has_suffix_file = True
                             file_node.add(child_file_node)
-                    return root_has_suffix_file, file_node if root_has_suffix_file else None
+                    # 这里无论文件夹下是否存在对应后缀文件，都需要返回一个根目录文件的拷贝
+                    # 以防止根目录下不存在对应后缀文件时，返回None空文件导致错误
+                    return root_has_suffix_file, file_node if root_has_suffix_file else root_file.__copy__()
 
 
 if __name__ == "__main__":
-    file_system = FileAnalyzer.file_analyze(root_dir='D:\\BaiduNetdiskDownload\\MATLAB\\R2010b\\extern')
+    file_system = FileAnalyzer.file_analyze(root_dir='E:\\新建文件夹')
     file_system.print_tree()
-    has_tree,file_system_suffix_Lib = FileAnalyzer.file_suffix_analyze('Lib',file_system)
-    print('lib tree:')
-    file_system_suffix_Lib.print_tree()
+    if file_system:
+        has_tree,file_system_suffix_Lib = FileAnalyzer.file_suffix_analyze('jpg',file_system)
+        print('lib tree:')
+        file_system_suffix_Lib.print_tree()
+    print('file_result:')
+    find_results = file_system_suffix_Lib.find('img_5425.jpg')
+    find_results.print_tree()
+    print('concrete_url:',find_results.get_concrete_url(base_url=''))
+

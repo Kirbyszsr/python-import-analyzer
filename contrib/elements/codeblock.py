@@ -2,6 +2,10 @@
 # 定义静态代码元素
 
 
+__all__ = ('CodeElement', 'NestableCodeElement',
+           'Class', 'Method', 'Variate', 'Import')
+
+
 # 一般静态代码元素
 class CodeElement(object):
     """
@@ -10,11 +14,11 @@ class CodeElement(object):
     def __init__(self, name, type, filename, line):
 
         if not name or not type or not filename or not line:
-            noneList = ""
+            none_list = ""
             for paras,paraname in ([name,'name'],[type,'type'],[filename,'filename'],[line,'line']):
                 if not paras:
-                    noneList += paraname if noneList == "" else "," + paraname
-            raise ValueError('Cannot set None for CodeElement():' + noneList)
+                    none_list += paraname if none_list == "" else "," + paraname
+            raise ValueError('Cannot set None for CodeElement():' + none_list)
         # 代码元素名
         self.name = name
         # 代码元素所在种类名
@@ -25,6 +29,7 @@ class CodeElement(object):
         self.line = line
         pass
 
+
 # 可嵌套的静态代码元素
 # Class, Method, Import 可以
 class NestableCodeElement(CodeElement):
@@ -32,6 +37,7 @@ class NestableCodeElement(CodeElement):
         # 调用初始化
         super(NestableCodeElement, self).__init__(name,type,filename,line)
         self.owns = owns if owns and owns.isinstance(list) else []
+
 
 class Class(NestableCodeElement):
     """
@@ -43,6 +49,9 @@ class Class(NestableCodeElement):
                                     filename=filename,
                                     line=line,
                                     owns=owns)
+
+    def __str__(self):
+        return "Class:[className=" + self.name + "]"
 
 
 class Method(NestableCodeElement):
@@ -56,6 +65,9 @@ class Method(NestableCodeElement):
                                      line=line,
                                      owns=owns)
 
+    def __str__(self):
+        return "Method:[methodName=" + self.name + "]"
+
 
 class Variate(CodeElement):
     """
@@ -67,6 +79,10 @@ class Variate(CodeElement):
                                       filename=filename,
                                       line=line,
                                       owns=owns)
+
+    def __str__(self):
+        return "Variate:[variateName=" + self.name + "]"
+
 
 class Import(CodeElement):
     """
@@ -82,6 +98,9 @@ class Import(CodeElement):
         self.as_element = as_element if as_element else from_element
         # 预留用版本号
         self.version = version
+
+    def __str__(self):
+        return "Import:[ImportName=" + self.name + "]"
 
 
 if __name__ == '__main__':

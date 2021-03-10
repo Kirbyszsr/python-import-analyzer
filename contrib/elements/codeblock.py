@@ -77,8 +77,7 @@ class Variate(CodeElement):
         super(Variate, self).__init__(name=name,
                                       type='Variate',
                                       filename=filename,
-                                      line=line,
-                                      owns=owns)
+                                      line=line)
 
     def __str__(self):
         return "Variate:[variateName=" + self.name + "]"

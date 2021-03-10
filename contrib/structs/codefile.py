@@ -9,10 +9,11 @@ class CodeFile(File):
     """
      定义项目中所所分析的源代码文件
      """
-    def __init__(self,filename,owned_by=None):
+    def __init__(self, filename, owned_by=None):
         super(CodeFile,self).__init__(filename=filename, file_type="file", owned_by=owned_by)
-        # 储存标识出的codeblock记号
+        # 储存标识出的code block记号
         self.code_elements = []
+        self.code_type = 'unknown'
 
     # 查看文件中所有Class对象
     def classes(self):
@@ -46,8 +47,8 @@ class CodeFile(File):
                 imports += element
         return imports
 
-    #为文件添加一个或多个代码识别元素
-    def add_element(self,element):
+    # 为文件添加一个或多个代码识别元素
+    def add_element(self, element):
         # 添加单个元素
         if element.isinstance(CodeElement):
             self.code_elements += element
@@ -64,7 +65,7 @@ class CodeFile(File):
             return False
 
     # 为文件删去一个或多个代码识别元素
-    def remove_element(self,element):
+    def remove_element(self, element):
         # 删去单个元素
         if element.isinstance(CodeElement):
             self.code_elements.remove(element)

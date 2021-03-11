@@ -31,7 +31,7 @@ class CodeElement(object):
 
 
 # 可嵌套的静态代码元素
-# Class, Method, Import 可以
+# Class, Method 可以
 class NestableCodeElement(CodeElement):
     def __init__(self, name, type, filename, line, owns):
         # 调用初始化

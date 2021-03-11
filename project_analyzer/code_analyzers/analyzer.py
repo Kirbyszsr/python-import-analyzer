@@ -15,6 +15,14 @@ class Analyzer:
         self.rows = []
 
     @abc.abstractmethod
+    def read_file(self):
+        """
+        读取文件的内容
+        :return: 一个list, 包含该文件的所有row
+        """
+        return NotImplemented
+
+    @abc.abstractmethod
     def read_line(self):
         """
         :param self:

@@ -1,7 +1,6 @@
-import os
 from contrib.structs.file import File
 from contrib.structs.codefile import CodeFile
-from contrib.elements.codeblock import CodeElement, Class, Method, Variate, Import
+from contrib.elements.codeblock import Class, Method, Variate, Import
 from project_analyzer.code_analyzers.analyzer import Analyzer
 
 
@@ -48,16 +47,35 @@ class PythonAnalyzer(Analyzer):
                           version=arg_version)
 
     def analyze(self):
+        # 检查分析对象是否为一个File对象，且对应一个文件系统里的文件
         if type(self.code_file) is not File:
             raise TypeError('代码的分析对象必须是一个contrib.structs.File对象,而对象的类型是' + type(self.code_file))
         if self.code_file.file_type is not "file":
             raise TypeError('代码的分析对象必须是一个文件,而对象是一个' + self.code_file.file_type)
+
+        # 创建一个CodeFile对象以返回
         code_file = CodeFile(filename=self.code_file.filename,
                              owned_by=None)
         code_file.code_type = 'python'
 
-        
+        code_lines = self.read_file()
+
         return code_file
+
+    def read_file(self):
+        """
+        读取文件的内容
+        :return: 一个list, 包含该文件的所有row
+        """
+        #获取url
+        code_file_url = self.code_file.get_concrete_url(base_url='')
+        try:
+            f = open(code_file_url, encoding='utf-8', mode='r')
+            f_lines = f.readlines()
+        finally:
+            if f:
+                file.close()
+        return f_lines if f_lines else []
 
     def read_line(self):
         """
@@ -72,3 +90,16 @@ class PythonAnalyzer(Analyzer):
 
     def next_line(self):
         return None
+
+
+if __name__ == "__main__":
+    file_url = "E:\\Works\\python-import-analyzer\\project_analyzer\\code_analyzers\\python_analyzer.py"
+    try:
+        file = open(file_url,encoding='utf-8',mode='r')
+        lines = file.readlines()
+    finally:
+        if file:
+            file.close()
+        if not lines:
+            lines = []
+    print(lines)

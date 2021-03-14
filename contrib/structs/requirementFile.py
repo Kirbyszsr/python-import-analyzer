@@ -17,11 +17,11 @@ class RequirementFile(File):
     #为文件添加一个或多个代码识别元素
     def add_element(self,element):
         # 添加单个元素
-        if element.isinstance(Import):
-            self.code_elements += element
+        if isinstance(element,Import):
+            self.code_elements.append(element)
             return True
         # 添加多个元素
-        elif element.isinstance(list):
+        elif isinstance(element,list):
             list_succeed = True
             for ele in element:
                 is_succeed = self.add_element(ele)
@@ -33,10 +33,10 @@ class RequirementFile(File):
 
     def remove_element(self,element):
         # 删去单个元素
-        if element.isinstance(Import):
+        if isinstance(element,Import):
             self.code_elements.remove(element)
         # 删去多个元素
-        elif element.isinstance(list):
+        elif isinstance(element,list):
             for ele in element:
                 self.code_elements.remove(ele)
         return

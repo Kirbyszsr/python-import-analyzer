@@ -19,7 +19,7 @@ class CodeFile(File):
     def classes(self):
         classes = []
         for element in self.code_elements:
-            if element.isinstance(Class):
+            if isinstance(element,Class):
                 classes += element
         return classes
 
@@ -27,7 +27,7 @@ class CodeFile(File):
     def methods(self):
         methods = []
         for element in self.code_elements:
-            if element.isinstance(Method):
+            if isinstance(element,Method):
                 methods += element
         return methods
 
@@ -35,7 +35,7 @@ class CodeFile(File):
     def variables(self):
         variables = []
         for element in self.code_elements:
-            if element.isinstance(Variate):
+            if isinstance(element,Variate):
                 variables += element
         return variables
 
@@ -43,18 +43,18 @@ class CodeFile(File):
     def imports(self):
         imports = []
         for element in self.code_elements:
-            if element.isinstance(Import):
+            if isinstance(element,Import):
                 imports += element
         return imports
 
     # 为文件添加一个或多个代码识别元素
     def add_element(self, element):
         # 添加单个元素
-        if element.isinstance(CodeElement):
-            self.code_elements += element
+        if isinstance(element,CodeElement):
+            self.code_elements.append(element)
             return True
         # 添加多个元素
-        elif element.isinstance(list):
+        elif isinstance(element,list):
             list_succeed = True
             for ele in element:
                 is_succeed = self.add_element(ele)
@@ -67,10 +67,10 @@ class CodeFile(File):
     # 为文件删去一个或多个代码识别元素
     def remove_element(self, element):
         # 删去单个元素
-        if element.isinstance(CodeElement):
+        if isinstance(element,CodeElement):
             self.code_elements.remove(element)
         # 删去多个元素
-        elif element.isinstance(list):
+        elif isinstance(element,list):
             for ele in element:
                 self.code_elements.remove(ele)
         return

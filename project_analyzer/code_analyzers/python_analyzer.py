@@ -3,6 +3,11 @@ from contrib.structs.codefile import CodeFile
 from contrib.elements.codeblock import Class, Method, Variate, Import
 from project_analyzer.code_analyzers.analyzer import Analyzer
 
+# 正则表达式
+import re
+import abc as test
+from py_compile import main as ce
+
 
 class PythonAnalyzer(Analyzer):
 
@@ -88,6 +93,24 @@ class PythonAnalyzer(Analyzer):
         """
         return None
 
+    def parse_line(self, line):
+        """
+        :param line:
+        :return:
+        """
+        """
+        in_multiple_note = False
+        multiple_note_flag = None
+        for line in lines:
+            if in_multiple_note and line.find(multiple_note_flag) == -1:
+                continue
+            elif in_multiple_note:
+                in_multiple_note = False
+                line = line[:line.find(multiple_note_flag)]
+                multiple_note_flag = None
+        """
+        return None
+
     def next_line(self):
         return None
 
@@ -102,4 +125,65 @@ if __name__ == "__main__":
             file.close()
         if not lines:
             lines = []
-    print(lines)
+
+    code_file = CodeFile(file_url)
+    analyzer = PythonAnalyzer(code_file)
+
+    import_line = []
+    def_line = []
+    class_line = []
+    equal_line = []
+
+    for line in lines:
+        code_line = re.sub(r'#.*$', "", line)
+        code_line = re.sub(r'\'.*\'', '\'\'', code_line)
+        code_line = re.sub(r'\".*\"', '\"\"', code_line)
+        # if re.findall('import ?', line):
+        if re.findall(r'(?:^|\s)import\s', code_line):
+            import_line.append(code_line)
+        if re.findall(r'(?:^|\s)def\s', code_line):
+            def_line.append(code_line)
+        if re.findall(r'(?:^|\s)class\s', code_line):
+            class_line.append(code_line)
+        if re.findall(r'\s=\s', code_line):
+            equal_line.append(code_line)
+    print(import_line)
+    # print(def_line)
+    # print(class_line)
+    # print(equal_line)
+
+    # 要使用;对同一行语句进行切块
+
+    for line in import_line:
+        elements = re.findall("from\s+(.+)\s+import\s+(.+)\s+as\s+(.+)",line)
+        if elements != []:
+            print(elements)
+            print("MATCH SUCCEED(fia)")
+            for element in elements:
+                code_file.add_element(analyzer.parse_import(-1, arg_from=element[0], arg_import=element[1], arg_as=element[2]))
+            continue
+
+        elements = re.findall("from\s+(.+)\s+import\s+(.+)",line)
+        if elements != []:
+            print(elements)
+            print("MATCH SUCCEED(fi)")
+            for element in elements:
+                code_file.add_element(analyzer.parse_import(-1, arg_from=element[0], arg_import=element[1]))
+            continue
+
+        elements = re.findall("import\s+(.+)as\s+(.+?)",line)
+        if elements != []:
+            print(elements)
+            print("MATCH SUCCEED(ia)")
+            for element in elements:
+                code_file.add_element(analyzer.parse_import(-1, arg_from=element[0], arg_import=element[1]))
+            continue
+        #    #code_file.add_element()
+        elements = re.findall("import\s+(.+)",line)
+        if elements != []:
+            print(elements)
+            print("MATCH SUCCEED(i)")
+            for element in elements:
+                code_file.add_element(analyzer.parse_import(-1,arg_import=element[1]))
+            continue
+    print("SUCCEED")

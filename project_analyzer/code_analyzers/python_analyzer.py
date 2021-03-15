@@ -13,6 +13,10 @@ class PythonAnalyzer(Analyzer):
 
     def __init__(self,code_file):
         super(PythonAnalyzer,self).__init__(code_file)
+        # self.row = 0
+        # 当前阅读的行数数据
+        # self.rows = []
+        self.current_line = 0
 
     def parse_class(self, line, name):
         return Class(name=name,
@@ -65,6 +69,8 @@ class PythonAnalyzer(Analyzer):
 
         code_lines = self.read_file()
 
+        self.rows = code_lines
+
         return code_file
 
     def read_file(self):
@@ -93,23 +99,58 @@ class PythonAnalyzer(Analyzer):
         """
         return None
 
-    def parse_line(self, line):
+    def parse_lines(self):
         """
         :param line:
         :return:
+
+        先行对line中可能出现的单行注释或者多行注释
+        进行去注释操作
         """
-        """
+        row_count = 0
         in_multiple_note = False
         multiple_note_flag = None
-        for line in lines:
-            if in_multiple_note and line.find(multiple_note_flag) == -1:
+        multiple_note_row = -1
+        for raw_line in self.lines:
+            clear_line = raw_line
+            if in_multiple_note and clear_line.find(multiple_note_flag) == -1:
+                self.lines[row_count] = ''
+                row_count += 1
                 continue
+                # 忽略内容
             elif in_multiple_note:
                 in_multiple_note = False
-                line = line[:line.find(multiple_note_flag)]
+                clear_line = clear_line[line.find(multiple_note_flag) + len(multiple_note_flag):]
                 multiple_note_flag = None
-        """
-        return None
+            # 去除单行中可能出现的多行注释
+            # 如果仍存在多行注释记号,记录这个多行注释符号的位置，并删除多行注释符号后存在的内容
+            while True:
+                # 要先行去除多行注释符号 """ '''在'' ""内的情况
+                clear_line = re.sub(r'".*"([^"])', r"\1", clear_line)
+                clear_line = re.sub(r'\'.*\'([^\']|$)', r"\1", clear_line)
+
+                single_quotes = clear_line.find("\'\'\'") # '''
+                multiple_quotes = clear_line.find("\"\"\"") # """
+                if single_quotes == -1 and multiple_quotes == -1:
+                    break
+                elif single_quotes == -1:
+                    in_multiple_note,multiple_note_flag = True, '"""'
+                    break
+                elif multiple_quotes == -1:
+                    in_multiple_note,multiple_note_flag = True, "'''"
+                    break
+            # 删除单行注释
+            clear_line = re.sub(r'#.*$', "", clear_line)
+
+            # 删除掉可能出现的引用'' ""内的内容
+            clear_line = re.sub(r'\'.*\'', '\'\'', clear_line)
+            clear_line = re.sub(r'\".*\"', '\"\"', clear_line)
+
+            self.lines[row_count] = clear_line
+            row_count += 1
+        if in_multiple_note:
+            raise AssertionError('在第' + multiple_note_row + '行中找到了未匹配的多行注释符号' + multiple_note_flag)
+        return True
 
     def next_line(self):
         return None
@@ -135,6 +176,7 @@ if __name__ == "__main__":
     equal_line = []
 
     for line in lines:
+        # 去除单行注释
         code_line = re.sub(r'#.*$', "", line)
         code_line = re.sub(r'\'.*\'', '\'\'', code_line)
         code_line = re.sub(r'\".*\"', '\"\"', code_line)
@@ -156,7 +198,7 @@ if __name__ == "__main__":
 
     for line in import_line:
         elements = re.findall("from\s+(.+)\s+import\s+(.+)\s+as\s+(.+)",line)
-        if elements != []:
+        if elements:
             print(elements)
             print("MATCH SUCCEED(fia)")
             for element in elements:
@@ -164,7 +206,7 @@ if __name__ == "__main__":
             continue
 
         elements = re.findall("from\s+(.+)\s+import\s+(.+)",line)
-        if elements != []:
+        if elements:
             print(elements)
             print("MATCH SUCCEED(fi)")
             for element in elements:
@@ -172,7 +214,7 @@ if __name__ == "__main__":
             continue
 
         elements = re.findall("import\s+(.+)as\s+(.+?)",line)
-        if elements != []:
+        if elements:
             print(elements)
             print("MATCH SUCCEED(ia)")
             for element in elements:
@@ -180,10 +222,23 @@ if __name__ == "__main__":
             continue
         #    #code_file.add_element()
         elements = re.findall("import\s+(.+)",line)
-        if elements != []:
+        if elements:
             print(elements)
             print("MATCH SUCCEED(i)")
             for element in elements:
                 code_file.add_element(analyzer.parse_import(-1,arg_import=element[1]))
             continue
     print("SUCCEED")
+
+    print("\nregex test:")
+    import re
+    test_line = '"ceshi"1 \'\'\' 1""'
+    print(test_line)
+    clear_line = re.sub(r'".*"([^\"])', r"[1matched,$1=\1]",test_line)
+    clear_line1 = re.sub(r'".*"([^\"])', r"\1",test_line)
+    print(clear_line)
+    print(clear_line1)
+    clear_line2 = re.sub(r'([^\"])""$', r"[2matched,$1=\1]",clear_line1)
+    print(clear_line1)
+    clear_line2 = re.sub(r'([^\"])""$', r"\1",clear_line1)
+    print(clear_line2)

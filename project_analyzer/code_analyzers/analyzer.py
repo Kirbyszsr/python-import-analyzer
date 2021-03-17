@@ -32,7 +32,7 @@ class Analyzer:
 
         * 如果有注释数据，则略过这些注释数据
         """
-        return NotImplemented,NotImplemented
+        return NotImplemented, NotImplemented
 
     @abc.abstractmethod
     def next_line(self):

@@ -58,7 +58,7 @@ class PythonAnalyzer(Analyzer):
     def analyze(self):
         # 检查分析对象是否为一个File对象，且对应一个文件系统里的文件
         if type(self.code_file) is not File:
-            raise TypeError('代码的分析对象必须是一个contrib.structs.File对象,而对象的类型是' + type(self.code_file))
+            raise TypeError('代码的分析对象必须是一个contrib.structs.File对象,而对象的类型是' + str(type(self.code_file)))
         if self.code_file.file_type is not "file":
             raise TypeError('代码的分析对象必须是一个文件,而对象是一个' + self.code_file.file_type)
 
@@ -78,14 +78,14 @@ class PythonAnalyzer(Analyzer):
         读取文件的内容
         :return: 一个list, 包含该文件的所有row
         """
-        #获取url
+        # 获取url
         code_file_url = self.code_file.get_concrete_url(base_url='')
         try:
             f = open(code_file_url, encoding='utf-8', mode='r')
             f_lines = f.readlines()
         finally:
             if f:
-                file.close()
+                f.close()
         return f_lines if f_lines else []
 
     def read_line(self):
@@ -157,6 +157,7 @@ class PythonAnalyzer(Analyzer):
 
 
 if __name__ == "__main__":
+    # PythonAnalyzer.read_file()
     file_url = "E:\\Works\\python-import-analyzer\\project_analyzer\\code_analyzers\\python_analyzer.py"
     try:
         file = open(file_url,encoding='utf-8',mode='r')
@@ -170,6 +171,7 @@ if __name__ == "__main__":
     code_file = CodeFile(file_url)
     analyzer = PythonAnalyzer(code_file)
 
+    # 行记录
     import_line = []
     def_line = []
     class_line = []
@@ -242,3 +244,4 @@ if __name__ == "__main__":
     print(clear_line1)
     clear_line2 = re.sub(r'([^\"])""$', r"\1",clear_line1)
     print(clear_line2)
+

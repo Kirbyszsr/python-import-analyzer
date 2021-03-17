@@ -99,7 +99,10 @@ class Import(CodeElement):
         self.version = version
 
     def __str__(self):
-        return "Import:[ImportName=" + self.name + "]"
+        return "<Import:[ImportName=" + self.name + "]>"
+
+    def __repr__(self):
+        return self.__str__()
 
 
 if __name__ == '__main__':

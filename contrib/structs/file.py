@@ -32,7 +32,8 @@ class File(object):
     @property
     def get_suffix(self):
         return self.__filename.split(".")[-1].lower()
-    #文件种类:
+
+    # 文件种类:
     #
     # file:文件
     # folder:文件夹

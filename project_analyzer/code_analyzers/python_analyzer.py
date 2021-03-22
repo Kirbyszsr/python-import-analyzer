@@ -2,21 +2,18 @@ from contrib.structs.file import File
 from contrib.structs.codefile import CodeFile
 from contrib.elements.codeblock import Class, Method, Variate, Import
 from project_analyzer.code_analyzers.analyzer import Analyzer
-
-# 正则表达式
 import re
-import abc as test
-from py_compile import main as ce
 
 
 class PythonAnalyzer(Analyzer):
 
-    def __init__(self,code_file):
-        super(PythonAnalyzer,self).__init__(code_file)
+    def __init__(self, code_file):
+        super(PythonAnalyzer, self).__init__(code_file)
         # self.row = 0
         # 当前阅读的行数数据
         # self.rows = []
         self.current_line = 0
+        self.lines = None
 
     def parse_class(self, line, name):
         return Class(name=name,
@@ -33,7 +30,8 @@ class PythonAnalyzer(Analyzer):
     def parse_variate(self, line, name):
         return Variate(name=name,
                        filename=self.code_file.filename,
-                       line=line)
+                       line=line,
+                       owns=None)
 
     def parse_import(self, line, arg_import, arg_as=None, arg_from=None, arg_version='*'):
         if not arg_from:
@@ -69,6 +67,8 @@ class PythonAnalyzer(Analyzer):
 
         code_lines = self.read_file()
         lines = code_lines
+
+        file_url = self.code_file.get_concrete_url()
 
         code_file = CodeFile(file_url)
         analyzer = PythonAnalyzer(code_file)
@@ -107,7 +107,8 @@ class PythonAnalyzer(Analyzer):
                 print("MATCH SUCCEED(fia)")
                 for element in elements:
                     code_file.add_element(
-                        analyzer.parse_import(-1, arg_from=element[0], arg_import=element[1], arg_as=element[2]))
+                        analyzer.parse_import(-1, arg_from=element[0],
+                                              arg_import=element[1], arg_as=element[2]))
                 continue
 
             elements = re.findall("from\s+(.+)\s+import\s+(.+)", line)
@@ -133,7 +134,6 @@ class PythonAnalyzer(Analyzer):
                 for element in elements:
                     code_file.add_element(analyzer.parse_import(-1, arg_import=element[1]))
                 continue
-        print("SUCCEED")
 
         self.rows = code_lines
 
@@ -146,15 +146,23 @@ class PythonAnalyzer(Analyzer):
         """
         # 获取url
         code_file_url = self.code_file.get_concrete_url(base_url='')
-        try:
-            f = open(code_file_url, encoding='utf-8', mode='r')
-            f_lines = f.readlines()
-        finally:
-            if f:
-                f.close()
-        return f_lines if f_lines else []
+        f = None
+        encoding_types = ['utf-8', 'iso-8859-1']
+        while True:
+            for encoding_type in encoding_types:
+                try:
+                    f = open(code_file_url, encoding=encoding_type, mode='r')
+                    f_lines = f.readlines()
+                    break
+                except UnicodeDecodeError:
+                    # for UnicodeDecodeError for utf-8
+                    continue
+                finally:
+                    if f:
+                        f.close()
+            return f_lines if f_lines else []
 
-    def read_line(self):
+    def read_line(self, row=None):
         """
         :param self:
         :param row:
@@ -167,7 +175,6 @@ class PythonAnalyzer(Analyzer):
 
     def parse_lines(self):
         """
-        :param line:
         :return:
 
         先行对line中可能出现的单行注释或者多行注释
@@ -215,7 +222,7 @@ class PythonAnalyzer(Analyzer):
             self.lines[row_count] = clear_line
             row_count += 1
         if in_multiple_note:
-            raise AssertionError('在第' + multiple_note_row + '行中找到了未匹配的多行注释符号' + multiple_note_flag)
+            raise AssertionError('在第' + str(multiple_note_row) + '行中找到了未匹配的多行注释符号' + multiple_note_flag)
         return True
 
     def next_line(self):
@@ -236,17 +243,4 @@ if __name__ == "__main__":
     sample_code_file = File(file_url)
     analyzer = PythonAnalyzer(sample_code_file)
     require_file = analyzer.analyze()
-
-    print("\nregex test:")
-    import re
-    test_line = '"ceshi"1 \'\'\' 1""'
-    print(test_line)
-    clear_line = re.sub(r'".*"([^\"])', r"[1matched,$1=\1]",test_line)
-    clear_line1 = re.sub(r'".*"([^\"])', r"\1",test_line)
-    print(clear_line)
-    print(clear_line1)
-    clear_line2 = re.sub(r'([^\"])""$', r"[2matched,$1=\1]",clear_line1)
-    print(clear_line1)
-    clear_line2 = re.sub(r'([^\"])""$', r"\1",clear_line1)
-    print(clear_line2)
 

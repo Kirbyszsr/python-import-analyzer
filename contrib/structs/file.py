@@ -1,7 +1,7 @@
 # File.py
 # 用于定义项目中所需要的文件系统
 
-__all__ = ('File')
+__all__ = 'File'
 
 
 class File(object):

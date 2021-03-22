@@ -51,8 +51,10 @@ class Class(NestableCodeElement):
                                     owns=owns)
 
     def __str__(self):
-        return "Class:[className=" + self.name + "]"
+        return "<Class:[" + self.name + "]>"
 
+    def __repr__(self):
+        return self.__str__()
 
 class Method(NestableCodeElement):
     """
@@ -66,8 +68,10 @@ class Method(NestableCodeElement):
                                      owns=owns)
 
     def __str__(self):
-        return "Method:[methodName=" + self.name + "]"
+        return "<Method:[" + self.name + "]>"
 
+    def __repr__(self):
+        return self.__str__()
 
 class Variate(CodeElement):
     """
@@ -80,8 +84,10 @@ class Variate(CodeElement):
                                       line=line)
 
     def __str__(self):
-        return "Variate:[variateName=" + self.name + "]"
+        return "<Variate:[" + self.name + "]>"
 
+    def __repr__(self):
+        return self.__str__()
 
 class Import(CodeElement):
     """
@@ -99,7 +105,7 @@ class Import(CodeElement):
         self.version = version
 
     def __str__(self):
-        return "<Import:[ImportName=" + self.name + "]>"
+        return "<Import:[\'" + self.name + "\' version=\'"+ self.version +"\']>"
 
     def __repr__(self):
         return self.__str__()

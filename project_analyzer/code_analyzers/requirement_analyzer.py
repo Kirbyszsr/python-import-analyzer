@@ -5,6 +5,7 @@ from project_analyzer.code_analyzers.analyzer import Analyzer
 
 import re
 
+
 class RequirementAnalyzer(Analyzer):
 
     def __init__(self,code_file):
@@ -147,7 +148,6 @@ class RequirementAnalyzer(Analyzer):
             line, read_line_count = self.read_line()
             if read_line_count == 0:
                 break
-            print(line)
             elements = re.findall("([a-zA-z0-9.]+)([!><=].*[0-9].*)",string=line)
             imports.append(elements)
             for element in elements:
@@ -162,17 +162,9 @@ class RequirementAnalyzer(Analyzer):
 
 if __name__ == "__main__":
     file_url = 'E:\\工作\\华为云项目\\keystone\\requirements.txt'
-    try:
-        file = open(file_url,encoding='utf-8',mode='r')
-        lines = file.readlines()
-    finally:
-        if file:
-            file.close()
-        if not lines:
-            lines = []
 
-    requirement_file = File(file_url)
-    analyzer = RequirementAnalyzer(requirement_file)
+    sample_requirement_file = File(file_url)
+    analyzer = RequirementAnalyzer(sample_requirement_file)
 
     require_file = analyzer.analyze()
     print('imports:')

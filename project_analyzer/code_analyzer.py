@@ -1,4 +1,7 @@
 from project_analyzer.code_analyzers.python_analyzer import PythonAnalyzer
+from project_analyzer.code_analyzers.requirement_analyzer import RequirementAnalyzer
+
+__all__ = "CodeAnalyzer"
 
 
 class CodeAnalyzer:
@@ -29,7 +32,7 @@ class CodeAnalyzer:
 
     @staticmethod
     def python_requirements_analyze(code_file):
-        return NotImplemented
+        return RequirementAnalyzer(code_file).analyze()
 
     @staticmethod
     def java_analyze(code_file):

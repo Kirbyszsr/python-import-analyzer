@@ -68,6 +68,72 @@ class PythonAnalyzer(Analyzer):
         code_file.code_type = 'python'
 
         code_lines = self.read_file()
+        lines = code_lines
+
+        code_file = CodeFile(file_url)
+        analyzer = PythonAnalyzer(code_file)
+
+        # 行记录
+        import_line = []
+        def_line = []
+        class_line = []
+        equal_line = []
+
+        for line in lines:
+            # 去除单行注释
+            code_line = re.sub(r'#.*$', "", line)
+            code_line = re.sub(r'\'.*\'', '\'\'', code_line)
+            code_line = re.sub(r'\".*\"', '\"\"', code_line)
+            # if re.findall('import ?', line):
+            if re.findall(r'(?:^|\s)import\s', code_line):
+                import_line.append(code_line)
+            if re.findall(r'(?:^|\s)def\s', code_line):
+                def_line.append(code_line)
+            if re.findall(r'(?:^|\s)class\s', code_line):
+                class_line.append(code_line)
+            if re.findall(r'\s=\s', code_line):
+                equal_line.append(code_line)
+        print(import_line)
+        # print(def_line)
+        # print(class_line)
+        # print(equal_line)
+
+        # 要使用;对同一行语句进行切块
+
+        for line in import_line:
+            elements = re.findall("from\s+(.+)\s+import\s+(.+)\s+as\s+(.+)", line)
+            if elements:
+                print(elements)
+                print("MATCH SUCCEED(fia)")
+                for element in elements:
+                    code_file.add_element(
+                        analyzer.parse_import(-1, arg_from=element[0], arg_import=element[1], arg_as=element[2]))
+                continue
+
+            elements = re.findall("from\s+(.+)\s+import\s+(.+)", line)
+            if elements:
+                print(elements)
+                print("MATCH SUCCEED(fi)")
+                for element in elements:
+                    code_file.add_element(analyzer.parse_import(-1, arg_from=element[0], arg_import=element[1]))
+                continue
+
+            elements = re.findall("import\s+(.+)as\s+(.+?)", line)
+            if elements:
+                print(elements)
+                print("MATCH SUCCEED(ia)")
+                for element in elements:
+                    code_file.add_element(analyzer.parse_import(-1, arg_from=element[0], arg_import=element[1]))
+                continue
+            #    #code_file.add_element()
+            elements = re.findall("import\s+(.+)", line)
+            if elements:
+                print(elements)
+                print("MATCH SUCCEED(i)")
+                for element in elements:
+                    code_file.add_element(analyzer.parse_import(-1, arg_import=element[1]))
+                continue
+        print("SUCCEED")
 
         self.rows = code_lines
 
@@ -120,7 +186,7 @@ class PythonAnalyzer(Analyzer):
                 # 忽略内容
             elif in_multiple_note:
                 in_multiple_note = False
-                clear_line = clear_line[line.find(multiple_note_flag) + len(multiple_note_flag):]
+                clear_line = clear_line[raw_line.find(multiple_note_flag) + len(multiple_note_flag):]
                 multiple_note_flag = None
             # 去除单行中可能出现的多行注释
             # 如果仍存在多行注释记号,记录这个多行注释符号的位置，并删除多行注释符号后存在的内容
@@ -159,78 +225,17 @@ class PythonAnalyzer(Analyzer):
 if __name__ == "__main__":
     # PythonAnalyzer.read_file()
     file_url = "E:\\Works\\python-import-analyzer\\project_analyzer\\code_analyzers\\python_analyzer.py"
-    try:
-        file = open(file_url,encoding='utf-8',mode='r')
-        lines = file.readlines()
-    finally:
-        if file:
-            file.close()
-        if not lines:
-            lines = []
-
-    code_file = CodeFile(file_url)
-    analyzer = PythonAnalyzer(code_file)
-
-    # 行记录
-    import_line = []
-    def_line = []
-    class_line = []
-    equal_line = []
-
-    for line in lines:
-        # 去除单行注释
-        code_line = re.sub(r'#.*$', "", line)
-        code_line = re.sub(r'\'.*\'', '\'\'', code_line)
-        code_line = re.sub(r'\".*\"', '\"\"', code_line)
-        # if re.findall('import ?', line):
-        if re.findall(r'(?:^|\s)import\s', code_line):
-            import_line.append(code_line)
-        if re.findall(r'(?:^|\s)def\s', code_line):
-            def_line.append(code_line)
-        if re.findall(r'(?:^|\s)class\s', code_line):
-            class_line.append(code_line)
-        if re.findall(r'\s=\s', code_line):
-            equal_line.append(code_line)
-    print(import_line)
-    # print(def_line)
-    # print(class_line)
-    # print(equal_line)
-
-    # 要使用;对同一行语句进行切块
-
-    for line in import_line:
-        elements = re.findall("from\s+(.+)\s+import\s+(.+)\s+as\s+(.+)",line)
-        if elements:
-            print(elements)
-            print("MATCH SUCCEED(fia)")
-            for element in elements:
-                code_file.add_element(analyzer.parse_import(-1, arg_from=element[0], arg_import=element[1], arg_as=element[2]))
-            continue
-
-        elements = re.findall("from\s+(.+)\s+import\s+(.+)",line)
-        if elements:
-            print(elements)
-            print("MATCH SUCCEED(fi)")
-            for element in elements:
-                code_file.add_element(analyzer.parse_import(-1, arg_from=element[0], arg_import=element[1]))
-            continue
-
-        elements = re.findall("import\s+(.+)as\s+(.+?)",line)
-        if elements:
-            print(elements)
-            print("MATCH SUCCEED(ia)")
-            for element in elements:
-                code_file.add_element(analyzer.parse_import(-1, arg_from=element[0], arg_import=element[1]))
-            continue
-        #    #code_file.add_element()
-        elements = re.findall("import\s+(.+)",line)
-        if elements:
-            print(elements)
-            print("MATCH SUCCEED(i)")
-            for element in elements:
-                code_file.add_element(analyzer.parse_import(-1,arg_import=element[1]))
-            continue
-    print("SUCCEED")
+    #try:
+    #    file = open(file_url,encoding='utf-8',mode='r')
+    #    lines = file.readlines()
+    #finally:
+    #    if file:
+    #        file.close()
+    #    if not lines:
+    #        lines = []
+    sample_code_file = File(file_url)
+    analyzer = PythonAnalyzer(sample_code_file)
+    require_file = analyzer.analyze()
 
     print("\nregex test:")
     import re

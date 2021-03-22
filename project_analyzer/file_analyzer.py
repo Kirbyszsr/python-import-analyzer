@@ -25,15 +25,17 @@ class FileAnalyzer:
     # 为文件寻找到一棵最小文件树，使得里面的文件全部包含同一个子域名
     @staticmethod
     def file_suffix_analyze(suffix=None,root_file=None):
-        suffix = suffix.lower()
+        if not isinstance(suffix,(str,list)):
+            return False, root_file
+        suffix = [suffix.lower()] if isinstance(suffix,str) else [sub.lower() for sub in suffix]
         root = root_file
         root_has_suffix_file = False
-        if root_file is None or not isinstance(root,File):
-            return False,None
+        if root_file is None or not isinstance(root, File):
+            return False, None
         else:
             if root_file.is_type("file"):
                 # 检查要使用大小写不敏感的搜索方式
-                is_suffix_file = root_file.get_suffix == suffix
+                is_suffix_file = root_file.get_suffix in suffix
                 if is_suffix_file:
                     file_node = root_file.__copy__()
                     return True, file_node
@@ -59,8 +61,8 @@ if __name__ == "__main__":
         has_tree,file_system_suffix_Lib = FileAnalyzer.file_suffix_analyze('jpg',file_system)
         print('lib tree:')
         file_system_suffix_Lib.print_tree()
-    print('file_result:')
-    find_results = file_system_suffix_Lib.find('img_5425.jpg')
-    find_results.print_tree()
-    print('concrete_url:',find_results.get_concrete_url(base_url=''))
+        print('file_result:')
+        find_results = file_system_suffix_Lib.find('img_5425.jpg')
+        find_results.print_tree()
+        print('concrete_url:',find_results.get_concrete_url(base_url=''))
 

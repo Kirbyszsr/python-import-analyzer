@@ -40,9 +40,10 @@ class StructureAnalyzer:
                 root_node = File(filename=root_file.filename,
                                  file_type="folder",
                                  owned_by=None)
+                root_node.add(file_list)
                 return root_node
         elif root_file.get_suffix == "py":
-            return CodeAnalyzer.code_analyze(root_file,"python")
+            return CodeAnalyzer.code_analyze(root_file, "python")
         elif re.match(r".*requirement.*\.txt",root_file.filename):
             return CodeAnalyzer.code_analyze(root_file,"python_requirements")
         else:
@@ -52,3 +53,4 @@ class StructureAnalyzer:
 if __name__ == "__main__":
     ana_tree = StructureAnalyzer.files_analyze('E:\\Works\\python-import-analyzer')
     result = StructureAnalyzer.structure_analyze(ana_tree)
+    print('succeed')

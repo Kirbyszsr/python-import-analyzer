@@ -18,11 +18,11 @@ class CodeAnalyzer:
     @staticmethod
     def code_analyze(code_file,code_type='python'):
         if code_type == 'python':
-            CodeAnalyzer.python_analyze(code_file)
+            return CodeAnalyzer.python_analyze(code_file)
         elif code_type == 'python_requirements' :
-            CodeAnalyzer.python_requirements_analyze(code_file)
+            return CodeAnalyzer.python_requirements_analyze(code_file)
         elif code_type == 'java':
-            CodeAnalyzer.java_analyze(code_file)
+            return CodeAnalyzer.java_analyze(code_file)
         else:
             return NotImplemented
 

@@ -58,7 +58,7 @@ if __name__ == "__main__":
     file_system = FileAnalyzer.file_analyze(root_dir='E:\\新建文件夹')
     file_system.print_tree()
     if file_system:
-        has_tree,file_system_suffix_Lib = FileAnalyzer.file_suffix_analyze('jpg',file_system)
+        has_tree,file_system_suffix_Lib = FileAnalyzer.file_suffix_analyze('jpg', file_system)
         print('lib tree:')
         file_system_suffix_Lib.print_tree()
         print('file_result:')

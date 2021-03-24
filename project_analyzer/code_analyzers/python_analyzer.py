@@ -93,18 +93,19 @@ class PythonAnalyzer(Analyzer):
                 class_line.append(code_line)
             if re.findall(r'\s=\s', code_line):
                 equal_line.append(code_line)
-        print(import_line)
+        # print(import_line)
         # print(def_line)
         # print(class_line)
         # print(equal_line)
 
+        # todo: 修复一下 多行语句中出现import时会出现误操作的问题
         # 要使用;对同一行语句进行切块
 
         for line in import_line:
             elements = re.findall("from\s+(.+)\s+import\s+(.+)\s+as\s+(.+)", line)
             if elements:
-                print(elements)
-                print("MATCH SUCCEED(fia)")
+                # print(elements)
+                # print("MATCH SUCCEED(fia)")
                 for element in elements:
                     code_file.add_element(
                         analyzer.parse_import(-1, arg_from=element[0],
@@ -113,26 +114,28 @@ class PythonAnalyzer(Analyzer):
 
             elements = re.findall("from\s+(.+)\s+import\s+(.+)", line)
             if elements:
-                print(elements)
-                print("MATCH SUCCEED(fi)")
+                # print(elements)
+                # print("MATCH SUCCEED(fi)")
                 for element in elements:
-                    code_file.add_element(analyzer.parse_import(-1, arg_from=element[0], arg_import=element[1]))
+                    for arg_import in element[1].strip(','):
+                        code_file.add_element(analyzer.parse_import(-1, arg_from=element[0], arg_import=arg_import))
                 continue
 
             elements = re.findall("import\s+(.+)as\s+(.+?)", line)
             if elements:
-                print(elements)
-                print("MATCH SUCCEED(ia)")
+                # print(elements)
+                # print("MATCH SUCCEED(ia)")
                 for element in elements:
                     code_file.add_element(analyzer.parse_import(-1, arg_from=element[0], arg_import=element[1]))
                 continue
             #    #code_file.add_element()
             elements = re.findall("import\s+(.+)", line)
             if elements:
-                print(elements)
-                print("MATCH SUCCEED(i)")
+                # print(elements)
+                # print("MATCH SUCCEED(i)")
                 for element in elements:
-                    code_file.add_element(analyzer.parse_import(-1, arg_import=element[1]))
+                    for arg_import in element[1].strip(','):
+                        code_file.add_element(analyzer.parse_import(-1, arg_import=arg_import))
                 continue
 
         self.rows = code_lines

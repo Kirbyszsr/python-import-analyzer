@@ -57,8 +57,8 @@ class File(object):
 
     def add(self,file):
         if isinstance(file,list):
-            for file in list:
-                self.add(file)
+            for file_element in file:
+                self.add(file_element)
             return
         else:
             if isinstance(file,File):

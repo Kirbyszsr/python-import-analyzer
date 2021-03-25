@@ -15,7 +15,7 @@ class CodeElement(object):
 
         if not name or not type or not filename or not line:
             none_list = ""
-            for paras,paraname in ([name,'name'],[type,'type'],[filename,'filename'],[line,'line']):
+            for paras, paraname in ([name,'name'],[type,'type'],[filename,'filename'],[line,'line']):
                 if not paras:
                     none_list += paraname if none_list == "" else "," + paraname
             raise ValueError('Cannot set None for CodeElement():' + none_list)

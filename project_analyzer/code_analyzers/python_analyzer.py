@@ -108,8 +108,10 @@ class PythonAnalyzer(Analyzer):
                 # print("MATCH SUCCEED(fia)")
                 for element in elements:
                     code_file.add_element(
-                        analyzer.parse_import(-1, arg_from=element[0],
-                                              arg_import=element[1], arg_as=element[2]))
+                        analyzer.parse_import(-1,
+                                              arg_from=element[0].strip(),
+                                              arg_import=element[1].strip(),
+                                              arg_as=element[2].strip()))
                 continue
 
             elements = re.findall("from\s+(.+)\s+import\s+(.+)", line)
@@ -117,8 +119,10 @@ class PythonAnalyzer(Analyzer):
                 # print(elements)
                 # print("MATCH SUCCEED(fi)")
                 for element in elements:
-                    for arg_import in element[1].strip(','):
-                        code_file.add_element(analyzer.parse_import(-1, arg_from=element[0], arg_import=arg_import))
+                    for arg_import in element[1].strip().split(','):
+                        code_file.add_element(analyzer.parse_import(-1,
+                                                                    arg_from=element[0].strip(),
+                                                                    arg_import=arg_import.strip()))
                 continue
 
             elements = re.findall("import\s+(.+)as\s+(.+?)", line)
@@ -126,7 +130,9 @@ class PythonAnalyzer(Analyzer):
                 # print(elements)
                 # print("MATCH SUCCEED(ia)")
                 for element in elements:
-                    code_file.add_element(analyzer.parse_import(-1, arg_from=element[0], arg_import=element[1]))
+                    code_file.add_element(analyzer.parse_import(-1,
+                                                                arg_from=element[0].strip(),
+                                                                arg_import=element[1].strip()))
                 continue
             #    #code_file.add_element()
             elements = re.findall("import\s+(.+)", line)
@@ -134,12 +140,17 @@ class PythonAnalyzer(Analyzer):
                 # print(elements)
                 # print("MATCH SUCCEED(i)")
                 for element in elements:
-                    for arg_import in element[1].strip(','):
-                        code_file.add_element(analyzer.parse_import(-1, arg_import=arg_import))
+                    import_elements = element.strip().split(',')
+                    import_elements = [import_elements] \
+                        if isinstance(import_elements,str) \
+                        else import_elements
+                    for arg_import in import_elements:
+                        code_file.add_element(analyzer.parse_import(-1,
+                                                                    arg_import=arg_import.strip()))
                 continue
 
         self.rows = code_lines
-
+        code_file.code_type = 'python'
         return code_file
 
     def read_file(self):
@@ -246,4 +257,3 @@ if __name__ == "__main__":
     sample_code_file = File(file_url)
     analyzer = PythonAnalyzer(sample_code_file)
     require_file = analyzer.analyze()
-

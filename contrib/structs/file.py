@@ -27,7 +27,7 @@ class File(object):
     #文件名
     @property
     def filename(self):
-        return self.__filename
+        return self.__filename.lower()
 
     @property
     def get_suffix(self):

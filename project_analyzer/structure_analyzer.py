@@ -1,7 +1,7 @@
 from code_analyzer import CodeAnalyzer
 from file_analyzer import FileAnalyzer
 from contrib.structs.file import File
-import re
+import re,numpy
 
 
 class StructureAnalyzer:
@@ -44,7 +44,7 @@ class StructureAnalyzer:
                 return root_node
         elif root_file.get_suffix == "py":
             return CodeAnalyzer.code_analyze(root_file, "python")
-        elif re.match(r".*requirement.*\.txt",root_file.filename):
+        elif re.match(r".*requirement.*\.txt", root_file.filename):
             return CodeAnalyzer.code_analyze(root_file,"python_requirements")
         else:
             return None

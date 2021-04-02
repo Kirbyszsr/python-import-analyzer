@@ -7,6 +7,11 @@ class PyPIWebCrawler:
 
 
 if __name__ == "__main__":
-    res = requests.get("https://pypi.org/pypi/pip/json")
+    package_name = "pip"
+    res = requests.get("https://pypi.org/pypi/%s/json" % package_name)
     response = res.json()
-    print(response)
+    print(json.dumps(response,sort_keys=True, indent=2))
+    print(__file__)
+    f = open('./output/%s/requirement.json' % package_name,'a+')
+    f.write(res.json())
+    f.close()

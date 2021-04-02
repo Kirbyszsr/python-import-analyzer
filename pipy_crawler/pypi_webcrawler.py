@@ -13,5 +13,5 @@ if __name__ == "__main__":
     print(json.dumps(response,sort_keys=True, indent=2))
     print(__file__)
     f = open('./output/%s/requirement.json' % package_name,'a+')
-    f.write(res.json())
+    f.write(str(res.json()))
     f.close()

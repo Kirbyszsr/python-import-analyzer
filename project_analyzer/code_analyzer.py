@@ -16,10 +16,10 @@ class CodeAnalyzer:
     #       具体对象类型依据识别出的代码类型决定
     # 基于原有File对象，同时包含Code的文件信息
     @staticmethod
-    def code_analyze(code_file,code_type='python'):
+    def code_analyze(code_file, code_type='python'):
         if code_type == 'python':
             return CodeAnalyzer.python_analyze(code_file)
-        elif code_type == 'python_requirements' :
+        elif code_type == 'python_requirements':
             return CodeAnalyzer.python_requirements_analyze(code_file)
         elif code_type == 'java':
             return CodeAnalyzer.java_analyze(code_file)

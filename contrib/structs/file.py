@@ -8,6 +8,7 @@ class File(object):
     """
     定义项目中所需要的文件类
     """
+
     def __init__(self, filename, file_type="file", owned_by=None):
         self.__filename = filename
         self.__file_type = file_type
@@ -16,18 +17,23 @@ class File(object):
         return
 
     def __copy__(self):
-        return File(self.__filename,self.__file_type,self.owned_by)
+        return File(self.__filename, self.__file_type, self.owned_by)
 
     def __str__(self):
         return self.filename
 
-    #def __repr__(self):
+    # def __repr__(self):
     #    return self.filename
 
-    #文件名
+    # 文件名
     @property
     def filename(self):
         return self.__filename.lower()
+
+    @property
+    def fullname(self):
+        return (self.owned_by.get_concrete_url() +
+                '\\' if self.owned_by else '') + self.filename
 
     @property
     def get_suffix(self):
@@ -55,21 +61,21 @@ class File(object):
             return None
         return self.owns
 
-    def add(self,file):
-        if isinstance(file,list):
+    def add(self, file):
+        if isinstance(file, list):
             for file_element in file:
                 self.add(file_element)
             return
         else:
-            if isinstance(file,File):
+            if isinstance(file, File):
                 self.owns = self.owns + [file]
                 file.owned_by = self
                 return
             # 如果不是File则略过
 
     # 为文件删除关联关系
-    def delete(self,file):
-        if isinstance(file,File):
+    def delete(self, file):
+        if isinstance(file, File):
             if file not in self.owns:
                 return
             else:
@@ -78,7 +84,7 @@ class File(object):
                 return
 
     # 寻找文件夹下所属文件
-    def find(self,name=''):
+    def find(self, name=''):
         if self.is_type('folder'):
             if name == '':
                 return self.owns
@@ -91,19 +97,18 @@ class File(object):
         return self.find()
 
     # 绘制树的关系图
-    def print_tree(self,root=0):
-        for i in range(1,root):
-            print('       ',end='')
+    def print_tree(self, root=0):
+        for i in range(1, root):
+            print('       ', end='')
         if root != 0:
             print('|———', end='')
-        print('['+self.filename+ ' type:'+ self.__file_type + ']')
+        print('[' + self.filename + ' type:' + self.__file_type + ']')
         for file in self.owns:
             file.print_tree(root + 1)
         return
 
-
-    #为文件返回文件url
-    def get_concrete_url(self,base_url = ''):
+    # 为文件返回文件url
+    def get_concrete_url(self, base_url=''):
         url = self.filename
         file = self
         while file.owned_by:
@@ -111,11 +116,14 @@ class File(object):
             url = file.filename + '\\' + url
         return base_url + url
 
+    def __str__(self):
+        return "<File %s>" % self.fullname
+
 
 if __name__ == "__main__":
-    file_a = File("main","folder")
+    file_a = File("main", "folder")
     print('file_a.filename=', file_a.filename)
-    file_b = File("sub","folder")
+    file_b = File("sub", "folder")
     print('file_b.filename=', file_b.filename)
 
     file_a.add(file_b)
@@ -130,7 +138,7 @@ if __name__ == "__main__":
     print('tree 2:')
     file_a.print_tree()
 
-    file_c = File("sub1","folder")
+    file_c = File("sub1", "folder")
     file_a.add(file_b)
     file_a.add(file_c)
     print('tree 3:')

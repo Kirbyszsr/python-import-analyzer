@@ -11,11 +11,13 @@ class CodeElement(object):
     """
     代码元素通用属性
     """
+
     def __init__(self, name, type, filename, line):
 
         if not name or not type or not filename or not line:
             none_list = ""
-            for paras, paraname in ([name,'name'],[type,'type'],[filename,'filename'],[line,'line']):
+            for paras, paraname in ([name, 'name'], [type, 'type'], [
+                                    filename, 'filename'], [line, 'line']):
                 if not paras:
                     none_list += paraname if none_list == "" else "," + paraname
             raise ValueError('Cannot set None for CodeElement():' + none_list)
@@ -35,7 +37,7 @@ class CodeElement(object):
 class NestableCodeElement(CodeElement):
     def __init__(self, name, type, filename, line, owns):
         # 调用初始化
-        super(NestableCodeElement, self).__init__(name,type,filename,line)
+        super(NestableCodeElement, self).__init__(name, type, filename, line)
         self.owns = owns if owns and owns.isinstance(list) else []
 
 
@@ -43,6 +45,7 @@ class Class(NestableCodeElement):
     """
     函数类对象
     """
+
     def __init__(self, name, filename, line, owns):
         super(Class, self).__init__(name=name,
                                     type='Class',
@@ -56,10 +59,12 @@ class Class(NestableCodeElement):
     def __repr__(self):
         return self.__str__()
 
+
 class Method(NestableCodeElement):
     """
     函数方法类对象
     """
+
     def __init__(self, name, filename, line, owns):
         super(Method, self).__init__(name=name,
                                      type='Method',
@@ -73,10 +78,12 @@ class Method(NestableCodeElement):
     def __repr__(self):
         return self.__str__()
 
+
 class Variate(CodeElement):
     """
     变量对象
     """
+
     def __init__(self, name, filename, line, owns):
         super(Variate, self).__init__(name=name,
                                       type='Variate',
@@ -94,11 +101,20 @@ class Import(CodeElement):
     """
     外部调用语句对象
     """
-    def __init__(self, name, filename, line, from_element, import_element='*',as_element=None, version='*'):
-        super(Import,self).__init__(name=name,
-                                    type='Import',
-                                    filename=filename,
-                                    line=line)
+
+    def __init__(
+            self,
+            name,
+            filename,
+            line,
+            from_element,
+            import_element='*',
+            as_element=None,
+            version='*'):
+        super(Import, self).__init__(name=name,
+                                     type='Import',
+                                     filename=filename,
+                                     line=line)
         self.from_element = from_element
         self.import_element = import_element
         self.as_element = as_element if as_element else from_element
@@ -106,12 +122,13 @@ class Import(CodeElement):
         self.version = version
 
     def __str__(self):
-        return "<Import:[\'" + self.name + "\' version=\'"+ self.version +"\']>"
+        return "<Import:[\'" + self.name + \
+            "\' version=\'" + self.version + "\']>"
 
     def __repr__(self):
         return self.__str__()
 
 
 if __name__ == '__main__':
-    a = CodeElement('a','v','c','a')
+    a = CodeElement('a', 'v', 'c', 'a')
     print(a)

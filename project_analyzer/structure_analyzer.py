@@ -1,7 +1,8 @@
 from code_analyzer import CodeAnalyzer
 from file_analyzer import FileAnalyzer
 from contrib.structs.file import File
-import re,numpy
+import re
+import numpy
 
 
 class StructureAnalyzer:
@@ -12,7 +13,8 @@ class StructureAnalyzer:
     def files_analyze(root_dir=''):
         file_system = FileAnalyzer.file_analyze(root_dir=root_dir)
         if file_system:
-            has_tree,file_system_suffix = FileAnalyzer.file_suffix_analyze(['txt','py'], file_system)
+            has_tree, file_system_suffix = FileAnalyzer.file_suffix_analyze(
+                ['txt', 'py'], file_system)
             print('lib tree:')
             file_system_suffix.print_tree()
             return file_system_suffix
@@ -24,7 +26,7 @@ class StructureAnalyzer:
     def structure_analyze(root_file=None):
         if not root_file:
             return None
-        if not isinstance(root_file,File):
+        if not isinstance(root_file, File):
             return None
         if root_file.file_type == "folder":
             has_file = False
@@ -45,12 +47,13 @@ class StructureAnalyzer:
         elif root_file.get_suffix == "py":
             return CodeAnalyzer.code_analyze(root_file, "python")
         elif re.match(r".*requirement.*\.txt", root_file.filename):
-            return CodeAnalyzer.code_analyze(root_file,"python_requirements")
+            return CodeAnalyzer.code_analyze(root_file, "python_requirements")
         else:
             return None
 
 
 if __name__ == "__main__":
-    ana_tree = StructureAnalyzer.files_analyze('E:\\Works\\python-import-analyzer')
+    ana_tree = StructureAnalyzer.files_analyze(
+        'E:\\Works\\python-import-analyzer')
     result = StructureAnalyzer.structure_analyze(ana_tree)
     print('succeed')

@@ -8,8 +8,8 @@ import re
 
 class RequirementAnalyzer(Analyzer):
 
-    def __init__(self,code_file):
-        super(RequirementAnalyzer,self).__init__(code_file)
+    def __init__(self, code_file):
+        super(RequirementAnalyzer, self).__init__(code_file)
         # self.row = 0
         # 当前阅读的行数数据
         # self.rows = []
@@ -40,7 +40,7 @@ class RequirementAnalyzer(Analyzer):
         """
         new_rows = []
         for raw_line in self.rows:
-            new_line = re.sub(r'#.*$',"", raw_line)
+            new_line = re.sub(r'#.*$', "", raw_line)
             new_rows.append(new_line)
         self.rows = new_rows
         return
@@ -67,7 +67,8 @@ class RequirementAnalyzer(Analyzer):
         当前行指针不移动。
         """
 
-        return self.rows[self.current_line + 1] if self.current_line + 1 < len(self.rows) else None
+        return self.rows[self.current_line +
+                         1] if self.current_line + 1 < len(self.rows) else None
 
     def parse_class(self, line, name):
         """
@@ -96,7 +97,13 @@ class RequirementAnalyzer(Analyzer):
         """
         return NotImplemented
 
-    def parse_import(self, line, arg_from, arg_import, arg_as, arg_version='*'):
+    def parse_import(
+            self,
+            line,
+            arg_from,
+            arg_import,
+            arg_as,
+            arg_version='*'):
         """
          创建并返回一个内含对象为空的import对象
         :param line: 所在行数
@@ -133,8 +140,9 @@ class RequirementAnalyzer(Analyzer):
                  具体对象类型依据识别出的代码类型决定
                  基于原有File对象，同时包含Code的文件信息
         """
-        if type(self.code_file) is not File:
-            raise TypeError('代码的分析对象必须是一个contrib.structs.File对象,而对象的类型是' + str(type(self.code_file)))
+        if not isinstance(self.code_file, File):
+            raise TypeError(
+                '代码的分析对象必须是一个contrib.structs.File对象,而对象的类型是' + str(type(self.code_file)))
         if self.code_file.file_type is not "file":
             raise TypeError('代码的分析对象必须是一个文件,而对象是一个' + self.code_file.file_type)
 
@@ -148,14 +156,17 @@ class RequirementAnalyzer(Analyzer):
             line, read_line_count = self.read_line()
             if read_line_count == 0:
                 break
-            elements = re.findall("([a-zA-z0-9.]+)([!><=].*[0-9].*)",string=line)
+            elements = re.findall(
+                "([a-zA-z0-9.]+)([!><=].*[0-9].*)", string=line)
             imports.append(elements)
             for element in elements:
-                requirement_file.add_element(self.parse_import(line=self.current_line,
-                                                               arg_from=element[0],
-                                                               arg_import='*',
-                                                               arg_as=elements[0],
-                                                               arg_version=element[1].strip()))
+                requirement_file.add_element(
+                    self.parse_import(
+                        line=self.current_line,
+                        arg_from=element[0],
+                        arg_import='*',
+                        arg_as=elements[0],
+                        arg_version=element[1].strip()))
             # imports.append(self.parse_import(self.current_line,))
         return requirement_file
 

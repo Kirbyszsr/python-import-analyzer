@@ -33,7 +33,13 @@ class PythonAnalyzer(Analyzer):
                        line=line,
                        owns=None)
 
-    def parse_import(self, line, arg_import, arg_as=None, arg_from=None, arg_version='*'):
+    def parse_import(
+            self,
+            line,
+            arg_import,
+            arg_as=None,
+            arg_from=None,
+            arg_version='*'):
         if not arg_from:
             # import * [as *]
             return Import(name=arg_import,
@@ -55,8 +61,9 @@ class PythonAnalyzer(Analyzer):
 
     def analyze(self):
         # 检查分析对象是否为一个File对象，且对应一个文件系统里的文件
-        if type(self.code_file) is not File:
-            raise TypeError('代码的分析对象必须是一个contrib.structs.File对象,而对象的类型是' + str(type(self.code_file)))
+        if not isinstance(self.code_file, File):
+            raise TypeError(
+                '代码的分析对象必须是一个contrib.structs.File对象,而对象的类型是' + str(type(self.code_file)))
         if self.code_file.file_type is not "file":
             raise TypeError('代码的分析对象必须是一个文件,而对象是一个' + self.code_file.file_type)
 
@@ -102,7 +109,8 @@ class PythonAnalyzer(Analyzer):
         # 要使用;对同一行语句进行切块
 
         for line in import_line:
-            elements = re.findall("from\s+(.+)\s+import\s+(.+)\s+as\s+(.+)", line)
+            elements = re.findall(
+                "from\\s+(.+)\\s+import\\s+(.+)\\s+as\\s+(.+)", line)
             if elements:
                 # print(elements)
                 # print("MATCH SUCCEED(fia)")
@@ -114,7 +122,7 @@ class PythonAnalyzer(Analyzer):
                                               arg_as=element[2].strip()))
                 continue
 
-            elements = re.findall("from\s+(.+)\s+import\s+(.+)", line)
+            elements = re.findall("from\\s+(.+)\\s+import\\s+(.+)", line)
             if elements:
                 # print(elements)
                 # print("MATCH SUCCEED(fi)")
@@ -125,7 +133,7 @@ class PythonAnalyzer(Analyzer):
                                                                     arg_import=arg_import.strip()))
                 continue
 
-            elements = re.findall("import\s+(.+)as\s+(.+?)", line)
+            elements = re.findall("import\\s+(.+)as\\s+(.+?)", line)
             if elements:
                 # print(elements)
                 # print("MATCH SUCCEED(ia)")
@@ -135,18 +143,18 @@ class PythonAnalyzer(Analyzer):
                                                                 arg_import=element[1].strip()))
                 continue
             #    #code_file.add_element()
-            elements = re.findall("import\s+(.+)", line)
+            elements = re.findall("import\\s+(.+)", line)
             if elements:
                 # print(elements)
                 # print("MATCH SUCCEED(i)")
                 for element in elements:
                     import_elements = element.strip().split(',')
                     import_elements = [import_elements] \
-                        if isinstance(import_elements,str) \
+                        if isinstance(import_elements, str) \
                         else import_elements
                     for arg_import in import_elements:
-                        code_file.add_element(analyzer.parse_import(-1,
-                                                                    arg_import=arg_import.strip()))
+                        code_file.add_element(
+                            analyzer.parse_import(-1, arg_import=arg_import.strip()))
                 continue
 
         self.rows = code_lines
@@ -207,7 +215,8 @@ class PythonAnalyzer(Analyzer):
                 # 忽略内容
             elif in_multiple_note:
                 in_multiple_note = False
-                clear_line = clear_line[raw_line.find(multiple_note_flag) + len(multiple_note_flag):]
+                clear_line = clear_line[raw_line.find(
+                    multiple_note_flag) + len(multiple_note_flag):]
                 multiple_note_flag = None
             # 去除单行中可能出现的多行注释
             # 如果仍存在多行注释记号,记录这个多行注释符号的位置，并删除多行注释符号后存在的内容
@@ -216,15 +225,15 @@ class PythonAnalyzer(Analyzer):
                 clear_line = re.sub(r'".*"([^"])', r"\1", clear_line)
                 clear_line = re.sub(r'\'.*\'([^\']|$)', r"\1", clear_line)
 
-                single_quotes = clear_line.find("\'\'\'") # '''
-                multiple_quotes = clear_line.find("\"\"\"") # """
+                single_quotes = clear_line.find("\'\'\'")  # '''
+                multiple_quotes = clear_line.find("\"\"\"")  # """
                 if single_quotes == -1 and multiple_quotes == -1:
                     break
                 elif single_quotes == -1:
-                    in_multiple_note,multiple_note_flag = True, '"""'
+                    in_multiple_note, multiple_note_flag = True, '"""'
                     break
                 elif multiple_quotes == -1:
-                    in_multiple_note,multiple_note_flag = True, "'''"
+                    in_multiple_note, multiple_note_flag = True, "'''"
                     break
             # 删除单行注释
             clear_line = re.sub(r'#.*$', "", clear_line)
@@ -236,7 +245,11 @@ class PythonAnalyzer(Analyzer):
             self.lines[row_count] = clear_line
             row_count += 1
         if in_multiple_note:
-            raise AssertionError('在第' + str(multiple_note_row) + '行中找到了未匹配的多行注释符号' + multiple_note_flag)
+            raise AssertionError(
+                '在第' +
+                str(multiple_note_row) +
+                '行中找到了未匹配的多行注释符号' +
+                multiple_note_flag)
         return True
 
     def next_line(self):
@@ -246,10 +259,10 @@ class PythonAnalyzer(Analyzer):
 if __name__ == "__main__":
     # PythonAnalyzer.read_file()
     file_url = "E:\\Works\\python-import-analyzer\\project_analyzer\\code_analyzers\\python_analyzer.py"
-    #try:
+    # try:
     #    file = open(file_url,encoding='utf-8',mode='r')
     #    lines = file.readlines()
-    #finally:
+    # finally:
     #    if file:
     #        file.close()
     #    if not lines:

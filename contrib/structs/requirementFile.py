@@ -15,7 +15,7 @@ class RequirementFile(File):
     def imports(self):
         return self.code_elements
 
-    #为文件添加一个或多个代码识别元素
+    # 为文件添加一个或多个代码识别元素
     def add_element(self,element):
         # 添加单个元素
         if isinstance(element,Import):

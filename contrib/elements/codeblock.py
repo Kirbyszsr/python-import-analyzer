@@ -123,7 +123,7 @@ class Import(CodeElement):
 
     def __str__(self):
         return "<Import:[\'" + self.name + \
-            "\' version=\'" + self.version + "\']>"
+            " element=\'" + self.import_element + "\' version=\'" + self.version + "\']>"
 
     def __repr__(self):
         return self.__str__()

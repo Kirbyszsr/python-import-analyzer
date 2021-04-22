@@ -3,6 +3,9 @@ from contrib.structs.codefile import CodeFile
 from contrib.elements.codeblock import Class, Method, Variate, Import
 from project_analyzer.code_analyzers.analyzer import Analyzer
 import re
+"""
+    import [failed]
+"""
 
 
 class PythonAnalyzer(Analyzer):
@@ -73,7 +76,8 @@ class PythonAnalyzer(Analyzer):
         code_file.code_type = 'python'
 
         code_lines = self.read_file()
-        lines = code_lines
+        self.rows = code_lines
+        self.parse_lines()
 
         file_url = self.code_file.get_concrete_url()
 
@@ -86,7 +90,7 @@ class PythonAnalyzer(Analyzer):
         class_line = []
         equal_line = []
 
-        for line in lines:
+        for line in self.rows:
             # 去除单行注释
             code_line = re.sub(r'#.*$', "", line)
             code_line = re.sub(r'\'.*\'', '\'\'', code_line)
@@ -105,7 +109,6 @@ class PythonAnalyzer(Analyzer):
         # print(class_line)
         # print(equal_line)
 
-        # todo: 修复一下 多行语句中出现import时会出现误操作的问题
         # 要使用;对同一行语句进行切块
 
         for line in import_line:
@@ -171,6 +174,7 @@ class PythonAnalyzer(Analyzer):
         f = None
         encoding_types = ['utf-8', 'iso-8859-1']
         while True:
+            f_lines = None
             for encoding_type in encoding_types:
                 try:
                     f = open(code_file_url, encoding=encoding_type, mode='r')
@@ -202,14 +206,15 @@ class PythonAnalyzer(Analyzer):
         先行对line中可能出现的单行注释或者多行注释
         进行去注释操作
         """
+
         row_count = 0
         in_multiple_note = False
         multiple_note_flag = None
         multiple_note_row = -1
-        for raw_line in self.lines:
+        for raw_line in self.rows:
             clear_line = raw_line
             if in_multiple_note and clear_line.find(multiple_note_flag) == -1:
-                self.lines[row_count] = ''
+                self.rows[row_count] = ''
                 row_count += 1
                 continue
                 # 忽略内容
@@ -222,8 +227,8 @@ class PythonAnalyzer(Analyzer):
             # 如果仍存在多行注释记号,记录这个多行注释符号的位置，并删除多行注释符号后存在的内容
             while True:
                 # 要先行去除多行注释符号 """ '''在'' ""内的情况
-                clear_line = re.sub(r'".*"([^"])', r"\1", clear_line)
-                clear_line = re.sub(r'\'.*\'([^\']|$)', r"\1", clear_line)
+                clear_line = re.sub(r'"([^"]).*"([^"])', r"\1", clear_line)
+                clear_line = re.sub(r'\'([^\']).*\'([^\']|$)', r"\1", clear_line)
 
                 single_quotes = clear_line.find("\'\'\'")  # '''
                 multiple_quotes = clear_line.find("\"\"\"")  # """
@@ -242,7 +247,7 @@ class PythonAnalyzer(Analyzer):
             clear_line = re.sub(r'\'.*\'', '\'\'', clear_line)
             clear_line = re.sub(r'\".*\"', '\"\"', clear_line)
 
-            self.lines[row_count] = clear_line
+            self.rows[row_count] = clear_line
             row_count += 1
         if in_multiple_note:
             raise AssertionError(
@@ -251,6 +256,7 @@ class PythonAnalyzer(Analyzer):
                 '行中找到了未匹配的多行注释符号' +
                 multiple_note_flag)
         return True
+
 
     def next_line(self):
         return None
@@ -270,3 +276,4 @@ if __name__ == "__main__":
     sample_code_file = File(file_url)
     analyzer = PythonAnalyzer(sample_code_file)
     require_file = analyzer.analyze()
+    print('ok')

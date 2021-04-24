@@ -3,9 +3,8 @@ from contrib.structs.codefile import CodeFile
 from contrib.elements.codeblock import Class, Method, Variate, Import
 from project_analyzer.code_analyzers.analyzer import Analyzer
 import re
-"""
-    import [failed]
-"""
+import ast
+import astunparse
 
 
 class PythonAnalyzer(Analyzer):
@@ -207,6 +206,15 @@ class PythonAnalyzer(Analyzer):
         进行去注释操作
         """
 
+        print(self.code_file.filename)
+        try:
+            a = ast.parse(''.join(row for row in self.rows))
+            b = astunparse.unparse(a)
+            self.rows = b.split("\n")
+            print('[parse_lines]parse %s succeed' % self.code_file.fullname)
+        except:
+            print('[parse_lines]parse %s error, using normal mode' % self.code_file.filename)
+
         row_count = 0
         in_multiple_note = False
         multiple_note_flag = None
@@ -214,7 +222,7 @@ class PythonAnalyzer(Analyzer):
         for raw_line in self.rows:
             clear_line = raw_line
             if in_multiple_note and clear_line.find(multiple_note_flag) == -1:
-                self.rows[row_count] = ''
+                self.rows[row_count] = '\n'
                 row_count += 1
                 continue
                 # 忽略内容
@@ -223,40 +231,54 @@ class PythonAnalyzer(Analyzer):
                 clear_line = clear_line[raw_line.find(
                     multiple_note_flag) + len(multiple_note_flag):]
                 multiple_note_flag = None
+
             # 去除单行中可能出现的多行注释
             # 如果仍存在多行注释记号,记录这个多行注释符号的位置，并删除多行注释符号后存在的内容
-            while True:
-                # 要先行去除多行注释符号 """ '''在'' ""内的情况
-                clear_line = re.sub(r'"([^"]).*"([^"])', r"\1", clear_line)
-                clear_line = re.sub(r'\'([^\']).*\'([^\']|$)', r"\1", clear_line)
+            # 要先行去除多行注释符号 """ '''或者 #在'' ""内的情况
 
+            clear_line = re.sub(r'([^"])"[^"]+"([^"]|$)', r"\1\2", clear_line)
+            clear_line = re.sub(r'([^\'])\'[^\']+\'([^\']|$)', r"\1\2", clear_line)
+            # todo: * +都试试
+            # 删除单行注释
+            clear_line = re.sub(r'#.*$', "", clear_line)
+
+            while True:
                 single_quotes = clear_line.find("\'\'\'")  # '''
                 multiple_quotes = clear_line.find("\"\"\"")  # """
                 if single_quotes == -1 and multiple_quotes == -1:
                     break
                 elif single_quotes == -1:
+                    if not clear_line == re.sub(r'""".*"""', "", clear_line):
+                        clear_line = re.sub(r'""".*"""', "", clear_line)
+                        continue
                     in_multiple_note, multiple_note_flag = True, '"""'
+                    multiple_note_row = row_count
+                    clear_line = re.sub(r'""".*$', "", clear_line)
                     break
                 elif multiple_quotes == -1:
+                    if not clear_line == re.sub(r"'''.*'''", "", clear_line):
+                        clear_line = re.sub(r"'''.*'''", "", clear_line)
+                        continue
                     in_multiple_note, multiple_note_flag = True, "'''"
+                    multiple_note_row = row_count
+                    clear_line = re.sub(r"'''.*$", "", clear_line)
                     break
-            # 删除单行注释
-            clear_line = re.sub(r'#.*$', "", clear_line)
 
             # 删除掉可能出现的引用'' ""内的内容
-            clear_line = re.sub(r'\'.*\'', '\'\'', clear_line)
-            clear_line = re.sub(r'\".*\"', '\"\"', clear_line)
+            clear_line = re.sub(r"\'.*\'([^'])", r"''\1", clear_line)
+            clear_line = re.sub(r'\".*\"([^"])', r'""\1', clear_line)
 
             self.rows[row_count] = clear_line
             row_count += 1
         if in_multiple_note:
             raise AssertionError(
+                "fileName" +
+                self.code_file.filename +
                 '在第' +
                 str(multiple_note_row) +
                 '行中找到了未匹配的多行注释符号' +
                 multiple_note_flag)
         return True
-
 
     def next_line(self):
         return None

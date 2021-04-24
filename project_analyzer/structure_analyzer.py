@@ -51,6 +51,14 @@ class StructureAnalyzer:
         else:
             return None
 
+    @staticmethod
+    def get_output_list(result_tree):
+        if not result_tree:
+            return []
+
+    @staticmethod
+    def check_import_exists(current_file, current_import):
+        pass
 
 if __name__ == "__main__":
     ana_tree = StructureAnalyzer.files_analyze(

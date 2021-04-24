@@ -1,6 +1,8 @@
 # Codeblock.py
 # 定义静态代码元素
-
+"""
+    multiple test
+"""
 
 __all__ = ('CodeElement', 'NestableCodeElement',
            'Class', 'Method', 'Variate', 'Import')

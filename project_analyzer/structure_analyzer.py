@@ -2,7 +2,6 @@ from code_analyzer import CodeAnalyzer
 from file_analyzer import FileAnalyzer
 from contrib.structs.file import File
 import re
-import numpy
 
 
 class StructureAnalyzer:
@@ -52,16 +51,29 @@ class StructureAnalyzer:
             return None
 
     @staticmethod
-    def get_output_list(result_tree):
+    def get_output_list(result_tree, current_file=None):
+        output_result = []
         if not result_tree:
             return []
+        if not current_file:
+            current_file = result_tree
+        if current_file.owns:
+            for file in current_file.owns:
+                output_result += StructureAnalyzer.get_output_list(result_tree, file)
+            return output_result
+        for import_element in current_file.code_elements:
+            if StructureAnalyzer.check_import_exists(current_file, import_element):
+                output_result.append(import_element)
+        return output_result
 
     @staticmethod
     def check_import_exists(current_file, current_import):
-        pass
+        return True
+
 
 if __name__ == "__main__":
     ana_tree = StructureAnalyzer.files_analyze(
         'E:\\Works\\python-import-analyzer')
-    result = StructureAnalyzer.structure_analyze(ana_tree)
+    struct_result = StructureAnalyzer.structure_analyze(ana_tree)
+    output_result = StructureAnalyzer.get_output_list(struct_result)
     print('succeed')

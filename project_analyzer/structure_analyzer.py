@@ -1,6 +1,8 @@
 from code_analyzer import CodeAnalyzer
 from file_analyzer import FileAnalyzer
 from contrib.structs.file import File
+# from contrib.elements.codeblock import Import
+from contrib.elements.versions import Version
 import re
 
 
@@ -60,20 +62,64 @@ class StructureAnalyzer:
         if current_file.owns:
             for file in current_file.owns:
                 output_result += StructureAnalyzer.get_output_list(result_tree, file)
-            return output_result
+            return StructureAnalyzer.get_cleared_output_list(output_result)
         for import_element in current_file.code_elements:
             if StructureAnalyzer.check_import_exists(current_file, import_element):
                 output_result.append(import_element)
-        return output_result
+        return StructureAnalyzer.get_cleared_output_list(output_result)
 
     @staticmethod
     def check_import_exists(current_file, current_import):
+        current_file = True
+        current_import = True
         return True
+
+    @staticmethod
+    def get_cleared_output_list(import_output_list):
+        result_list = []
+        for import_element in import_output_list:
+            if import_element.from_element == 'contrib.elements.codeblock':
+                print('yes')
+            has_element = False
+            for import_list_element in result_list:
+                if import_list_element.from_element == import_element.from_element:
+                    has_element = True
+                    import_list_element.filename += ',' + import_element.filename
+                    import_list_element.import_element += ',' + import_element.import_element
+                    import_list_element.version += ',' + import_element.version
+                    break
+            if not has_element:
+                result_list.append(import_element.__copy__())
+        return result_list
+
+    @staticmethod
+    def check_result_import_list(cleared_output_list):
+        error_list = []
+        for import_element in cleared_output_list:
+            import_element_list = import_element.import_element.split(',')
+            version_list = import_element.version.split(',')
+
+            cleared_version_list, errors = Version.check_clear(version_list)
+            cleared_import_list = []
+
+            for import_struct in import_element_list:
+                if import_struct == '*':
+                    cleared_import_list = ['*']
+                    break
+                if import_struct not in cleared_import_list:
+                    cleared_import_list.append(import_struct)
+
+            import_element.import_element = ",".join(cleared_import_list)
+            import_element.version = ",".join(cleared_version_list)
+            error_list += errors
+        return cleared_output_list, error_list
 
 
 if __name__ == "__main__":
     ana_tree = StructureAnalyzer.files_analyze(
         'E:\\Works\\python-import-analyzer')
     struct_result = StructureAnalyzer.structure_analyze(ana_tree)
-    output_result = StructureAnalyzer.get_output_list(struct_result)
+    import_result = StructureAnalyzer.get_output_list(struct_result)
+    cleared_import_result,error_list = StructureAnalyzer.check_result_import_list(import_result)
+    cleared_import_result_list = [import_element.from_element for import_element in cleared_import_result]
     print('succeed')

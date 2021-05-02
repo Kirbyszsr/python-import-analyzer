@@ -123,6 +123,15 @@ class Import(CodeElement):
         # 预留用版本号
         self.version = version
 
+    def __copy__(self):
+        return Import(self.name,
+                      self.filename,
+                      self.line,
+                      self.from_element,
+                      self.import_element,
+                      self.as_element,
+                      self.version)
+
     def __str__(self):
         return "<Import:[\'" + self.name + \
             " element=\'" + self.import_element + "\' version=\'" + self.version + "\']>"

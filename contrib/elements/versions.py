@@ -1,5 +1,7 @@
 # Versions.py
 # 定义版本号
+import re
+
 
 __all__ = 'Version'
 
@@ -34,6 +36,50 @@ class Version:
             i += 1
         return len_a < len_b
 
+    @staticmethod
+    def check_clear(version_list):
+        cleared_list = []
+        # todo: 错误列表暂时先不使用
+        error_list = []
+
+        for element in version_list:
+            assert(isinstance(element, str))
+        # 先清理 *
+        for version_str in version_list:
+            if version_str != '*':
+                cleared_list.append(version_str)
+
+        symbols = ['<','<=','>','>=','=','!=']
+        versions = [[], [], [], [], [], []]
+        version_dict = dict(zip(symbols,versions))
+        for version_str in cleared_list:
+            elements = re.findall("([!><=]+)([0-9].*)",string=version_str)
+            for symbol in symbols:
+                if elements[0] == symbol:
+                    version_dict[symbol].append(Version(elements[1]))
+            version_dict['<'] = [min(version_dict['<'])]
+            version_dict['<='] = [min(version_dict['<='])]
+            version_dict['>'] = [max(version_dict['>'])]
+            version_dict['>='] = [max(version_dict['>='])]
+
+        if version_dict['<'] and version_dict['<=']:
+            if version_dict['<'][0] <= version_dict['<='][0]:
+                version_dict['<='] = []
+            else:
+                version_dict['<'] = []
+        if version_dict['>'] and version_dict['>=']:
+            if version_dict['>'][0] <= version_dict['>='][0]:
+                version_dict['>='] = []
+            else:
+                version_dict['>'] = []
+
+        result_list = []
+        for key, values in version_dict.items():
+            for version in values:
+                result_list.append(key + version.version_str)
+
+        return (['*'] if not cleared_list else result_list), error_list
+
     def __cmp__(self, other):
         if isinstance(other, Version):
             return self.compare(other)
@@ -63,6 +109,7 @@ class Version:
 
 if __name__ == "__main__":
     version_a = Version("3.1a.5a")
-    version_b = Version("3.1a.5a")
+    version_b = Version("3.1a.6a")
     print(compare_version_part("3", '3a'))
     print(version_a == version_b)
+    print(max(version_a,version_b))

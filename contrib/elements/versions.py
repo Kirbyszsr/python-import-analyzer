@@ -49,18 +49,18 @@ class Version:
             if version_str != '*':
                 cleared_list.append(version_str)
 
-        symbols = ['<','<=','>','>=','=','!=']
+        symbols = ['<','<=','>','>=','==','!=']
         versions = [[], [], [], [], [], []]
         version_dict = dict(zip(symbols,versions))
         for version_str in cleared_list:
-            elements = re.findall("([!><=]+)([0-9].*)",string=version_str)
+            elements = re.findall("([!><=]+)([0-9].*)",string=version_str)[0]
             for symbol in symbols:
                 if elements[0] == symbol:
                     version_dict[symbol].append(Version(elements[1]))
-            version_dict['<'] = [min(version_dict['<'])]
-            version_dict['<='] = [min(version_dict['<='])]
-            version_dict['>'] = [max(version_dict['>'])]
-            version_dict['>='] = [max(version_dict['>='])]
+        version_dict['<'] = [min(version_dict['<'])] if version_dict['<'] else []
+        version_dict['<='] = [min(version_dict['<='])] if version_dict['<='] else []
+        version_dict['>'] = [max(version_dict['>'])] if version_dict['>'] else []
+        version_dict['>='] = [max(version_dict['>='])] if version_dict['>='] else []
 
         if version_dict['<'] and version_dict['<=']:
             if version_dict['<'][0] <= version_dict['<='][0]:
@@ -76,7 +76,8 @@ class Version:
         result_list = []
         for key, values in version_dict.items():
             for version in values:
-                result_list.append(key + version.version_str)
+                result_str = key + version.version_str
+                result_list.append(result_str)
 
         return (['*'] if not cleared_list else result_list), error_list
 

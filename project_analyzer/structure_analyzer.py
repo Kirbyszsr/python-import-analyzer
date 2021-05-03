@@ -78,8 +78,6 @@ class StructureAnalyzer:
     def get_cleared_output_list(import_output_list):
         result_list = []
         for import_element in import_output_list:
-            if import_element.from_element == 'contrib.elements.codeblock':
-                print('yes')
             has_element = False
             for import_list_element in result_list:
                 if import_list_element.from_element == import_element.from_element:
@@ -96,6 +94,8 @@ class StructureAnalyzer:
     def check_result_import_list(cleared_output_list):
         error_list = []
         for import_element in cleared_output_list:
+            if import_element.from_element == 'astunparse':
+                print('yes')
             import_element_list = import_element.import_element.split(',')
             version_list = import_element.version.split(',')
 

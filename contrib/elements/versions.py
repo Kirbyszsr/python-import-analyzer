@@ -37,7 +37,7 @@ class Version:
         return len_a < len_b
 
     @staticmethod
-    def check_clear(version_list):
+    def check_clear(version_list,import_name=""):
         cleared_list = []
         # todo: 错误列表暂时先不使用
         error_list = []
@@ -72,6 +72,21 @@ class Version:
                 version_dict['>='] = []
             else:
                 version_dict['>'] = []
+
+        version_lt = version_dict['<'] + version_dict['<=']
+        version_mt = version_dict['>'] + version_dict['>=']
+        if version_lt and version_mt:
+            if version_lt[0] < version_mt[0]:
+                error_list.append(AssertionError("version_lt(%s) < version_mt(%s) in package %s"
+                                                % (version_lt[0].version_str,
+                                                   version_mt[0].version_str,
+                                                   import_name)))
+
+            if version_lt[0] == version_mt[0] and not (version_dict['<='] and version_dict['>=']):
+                error_list.append(AssertionError("version_lt(%s) == version_mt(%s) in package %s"
+                                                % (version_lt[0].version_str,
+                                                   version_mt[0].version_str,
+                                                   import_name)))
 
         result_list = []
         for key, values in version_dict.items():

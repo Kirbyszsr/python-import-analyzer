@@ -40,6 +40,7 @@ class NVDWebCrawler:
                 continue
         return self.result
 
+
 if __name__ == "__main__":
     package_names = ["pip", "requests", "django"]
     wrapper = NVDWebCrawler(package_names)

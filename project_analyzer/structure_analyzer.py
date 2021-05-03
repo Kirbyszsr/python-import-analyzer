@@ -94,12 +94,11 @@ class StructureAnalyzer:
     def check_result_import_list(cleared_output_list):
         error_list = []
         for import_element in cleared_output_list:
-            if import_element.from_element == 'astunparse':
-                print('yes')
+            import_name = import_element.from_element
             import_element_list = import_element.import_element.split(',')
             version_list = import_element.version.split(',')
 
-            cleared_version_list, errors = Version.check_clear(version_list)
+            cleared_version_list, errors = Version.check_clear(version_list, import_name)
             cleared_import_list = []
 
             for import_struct in import_element_list:
@@ -122,4 +121,5 @@ if __name__ == "__main__":
     import_result = StructureAnalyzer.get_output_list(struct_result)
     cleared_import_result,error_list = StructureAnalyzer.check_result_import_list(import_result)
     cleared_import_result_list = [import_element.from_element for import_element in cleared_import_result]
+    print(error_list)
     print('succeed')

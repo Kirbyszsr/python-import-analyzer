@@ -4,7 +4,7 @@ import os
 
 
 class PyPIWebCrawler:
-    def __init__(self, packages):
+    def __init__(self, packages, force_updating=False):
         """
         PYPI WebCrawler
         :param packages: list[str]
@@ -15,17 +15,37 @@ class PyPIWebCrawler:
             assert(isinstance(element, str))
         self.packages = packages
         self.result = {}
+        self.force_updating = force_updating
 
     def parse(self):
         for package_name in self.packages:
             try:
+                path = './output/%s/' % package_name
+                if not self.force_updating:
+                    if os.path.exists(path + 'requirement-simple.json'):
+                        print("[PyPIWebCrawler]parsing package %s found requirement-simple.json"
+                              % package_name)
+                        is_succeed = False
+                        try:
+                            f = open(path + 'requirement-simple.json', 'r')
+                            basic_info = json.load(f)
+                            self.result[package_name] = basic_info
+                            print("[parse succeed]package_name: %s" % package_name)
+                            is_succeed = True
+                        except Exception as e:
+                            print("[PyPIWebCrawler]Error when parsing requirement-simple.json:"
+                                  % e.__str__())
+                        finally:
+                            if f:
+                                f.close()
+                        if is_succeed:
+                            continue
                 res = requests.get(
                     "https://pypi.org/pypi/%s/json" %
                     package_name)
                 response = res.json()
                 # print(json.dumps(response,sort_keys=True, indent=2))
 
-                path = './output/%s/' % package_name
                 if not os.path.exists(path):
                     # make dirs for packages that have not been parsed
                     os.makedirs(path)

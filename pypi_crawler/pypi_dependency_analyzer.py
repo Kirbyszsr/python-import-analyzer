@@ -53,7 +53,7 @@ class PyPIDependencyAnalyzer:
                     if package_name in pack.include_package_names:
                         pack.include_packages.append(current_package)
 
-        return self.dependency_packages
+        return self.dependency_packages, parsed_package_names
 
     def check_dependencies(self):
         error_list = []
@@ -76,5 +76,7 @@ if __name__ == "__main__":
     sample_package_names = ['requests']
     # package_names = ['django', 'pip', 'requests']
     analyzer = PyPIDependencyAnalyzer(sample_package_names)
-    analyzer.analyze()
+    result_package, result_names = analyzer.analyze()
     print("[PyPIDependencyAnalyzer]OK")
+    print("[PyPIDependencyAnalyzer]parsed_package_names:")
+    print(result_names)

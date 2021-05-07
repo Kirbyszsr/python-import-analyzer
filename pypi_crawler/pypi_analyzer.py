@@ -13,7 +13,8 @@ class PyPIAnalyzer:
         if version_str_list is None:
             version_str_list = []
         if not version_str_list:
-            return self.basic_info["released_versions"]
+            return self.basic_info["released_versions"] \
+                if "released_versions" in self.basic_info.keys() else []
         available_versions = [Version(version) for version in self.basic_info["released_versions"]]
         checked_versions = []
         symbols = ['<', '<=', '>', '>=', '==', '!=']
@@ -49,16 +50,17 @@ class PyPIAnalyzer:
         return [version.version_str for version in checked_versions]
 
     def parse_requirement_dist(self):
-        requirements_list = self.basic_info["requires_dist"]
+        requirements_list = self.basic_info["requires_dist"] \
+            if "requires_dist" in self.basic_info.keys() else []
         if not requirements_list:
             return []
         parsed_requirements_list = []
         for requirement in requirements_list:
             requirement_index = requirement.find(';')
             if requirement_index != -1:
-                parsed_requirements_list.append(requirement[:requirement_index])
+                parsed_requirements_list.append(requirement[:requirement_index].strip())
             else:
-                parsed_requirements_list.append(requirement)
+                parsed_requirements_list.append(requirement.strip())
         parsed_requirements_imports = []
         for parsed_requirement in parsed_requirements_list:
             elements = re.findall(
@@ -86,7 +88,7 @@ class PyPIAnalyzer:
                            version='*'
                            )
                 )
-                self.requirement_list = parsed_requirement
+        self.requirement_list = parsed_requirements_imports
         return parsed_requirements_list
 
 

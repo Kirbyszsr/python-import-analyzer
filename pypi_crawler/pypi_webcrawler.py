@@ -52,7 +52,7 @@ class PyPIWebCrawler:
                 self.result[package_name] = basic_info
                 print('[parse succeed]package_name: %s' % package_name)
             except Exception as e:
-                print('[exception]Exception occurred: %s' % e.__str__())
+                print('[exception]Exception occurred when parsing %s: %s' % (package_name,e.__str__()))
                 print('[parse failed]package_name: %s' % package_name)
                 self.result[package_name] = {"Exception": e.__str__()}
                 continue
@@ -63,3 +63,4 @@ if __name__ == "__main__":
     package_names = ["pip", "requests", "django"]
     wrapper = PyPIWebCrawler(package_names)
     print(wrapper.parse())
+    print("[PyPI_WebCrawler]OK")

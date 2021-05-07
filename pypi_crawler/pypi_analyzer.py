@@ -57,12 +57,27 @@ class PyPIAnalyzer:
         parsed_requirements_list = []
         for requirement in requirements_list:
             requirement_index = requirement.find(';')
+            parsed_requirement = requirement
             if requirement_index != -1:
-                parsed_requirements_list.append(requirement[:requirement_index].strip())
-            else:
-                parsed_requirements_list.append(requirement.strip())
+                parsed_requirement = requirement[:requirement_index].strip()
+            parsed_requirements_list.append(parsed_requirement)
         parsed_requirements_imports = []
         for parsed_requirement in parsed_requirements_list:
+            elements = re.findall(
+                "(.+)\[(.+)] \((.+)\)", parsed_requirement)
+            if elements:
+                for element in elements:
+                    parsed_requirements_imports.append(
+                        Import(name=element[0].strip(),
+                               filename=self.basic_info["name"],
+                               line=-1,
+                               from_element=element[0].strip(),
+                               import_element="*",
+                               as_element=element[0].strip(),
+                               version=element[2].strip()
+                               )
+                    )
+                continue
             elements = re.findall(
                 "(.+) \((.+)\)", parsed_requirement)
             if elements:
@@ -77,17 +92,48 @@ class PyPIAnalyzer:
                                version=element[1].strip()
                                )
                     )
-            else:
-                parsed_requirements_imports.append(
-                    Import(name=parsed_requirement.strip(),
-                           filename=self.basic_info["name"],
-                           line=-1,
-                           from_element=parsed_requirement.strip(),
-                           import_element="*",
-                           as_element=parsed_requirement.strip(),
-                           version='*'
-                           )
-                )
+                continue
+            elements = re.findall(
+                "([a-zA-Z_-]+)([><=!~][><=,!~. ]*)", parsed_requirement.replace(" ", "")
+            )
+            if elements:
+                for element in elements:
+                    parsed_requirements_imports.append(
+                        Import(name=element[0].strip(),
+                               filename=self.basic_info["name"],
+                               line=-1,
+                               from_element=element[0].strip(),
+                               import_element="*",
+                               as_element=element[0].strip(),
+                               version=element[1].replace(" ", "")
+                               )
+                    )
+                continue
+            elements = re.findall(
+                "(.+)\[(.+)]", parsed_requirement)
+            if elements:
+                for element in elements:
+                    parsed_requirements_imports.append(
+                        Import(name=element[0].strip(),
+                               filename=self.basic_info["name"],
+                               line=-1,
+                               from_element=element[0].strip(),
+                               import_element="*",
+                               as_element=element[0].strip(),
+                               version="*"
+                               )
+                    )
+                continue
+            parsed_requirements_imports.append(
+                Import(name=parsed_requirement.strip(),
+                       filename=self.basic_info["name"],
+                       line=-1,
+                       from_element=parsed_requirement.strip(),
+                       import_element="*",
+                       as_element=parsed_requirement.strip(),
+                       version='*'
+                       )
+            )
         self.requirement_list = parsed_requirements_imports
         return parsed_requirements_list
 

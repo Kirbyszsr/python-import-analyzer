@@ -12,10 +12,11 @@ class PyPIDependencyAnalyzer:
         self.error_list = []
 
     def analyze(self):
-        remained_dependency_list = self.dependency_list
+        remained_dependency_list = self.dependency_list.copy()
         parsed_package_names = []
         parsed_packages = []
         while remained_dependency_list:
+            print("[PyPIDependencyAnalyzer]Remained_dependency_list:", remained_dependency_list)
             package_info = PyPIDependencyAnalyzer.get_dependencies(remained_dependency_list)
             for (package_name, info) in package_info.items():
                 print("[PyPIDependencyAnalyzer]Analyzing:%s" % package_name)
@@ -31,18 +32,20 @@ class PyPIDependencyAnalyzer:
                 print(current_package_imports)
 
                 current_package = Package(package_name)
+                current_package_include_names = [package.name
+                                                 for package
+                                                 in pack_analyzer.requirement_list]
                 current_package.tree_include_packages = pack_analyzer.requirement_list
+                current_package.include_package_names = current_package_include_names
                 parsed_package_names.append(package_name)
                 parsed_packages.append(current_package)
                 if package_name in self.dependency_list:
                     self.dependency_packages.append(current_package)
 
-                current_package_include_names = [package.name
-                                                 for package
-                                                 in pack_analyzer.requirement_list]
-                current_package.include_package_names = current_package_include_names
                 remained_dependency_list.remove(package_name)
                 for pack_name in current_package_include_names:
+                    if pack_name == 'plette[validation]':
+                        print('ok')
                     if pack_name not in parsed_package_names \
                             and pack_name not in remained_dependency_list:
                         remained_dependency_list.append(pack_name)
@@ -74,3 +77,4 @@ if __name__ == "__main__":
     # package_names = ['django', 'pip', 'requests']
     analyzer = PyPIDependencyAnalyzer(sample_package_names)
     analyzer.analyze()
+    print("[PyPIDependencyAnalyzer]OK")

@@ -26,6 +26,7 @@ class PyPIWebCrawler:
                         print("[PyPIWebCrawler]parsing package %s found requirement-simple.json"
                               % package_name)
                         is_succeed = False
+                        f = None
                         try:
                             f = open(path + 'requirement-simple.json', 'r')
                             basic_info = json.load(f)
@@ -33,8 +34,9 @@ class PyPIWebCrawler:
                             print("[parse succeed]package_name: %s" % package_name)
                             is_succeed = True
                         except Exception as e:
-                            print("[PyPIWebCrawler]Error when parsing requirement-simple.json:"
+                            print("[PyPIWebCrawler]Error when parsing requirement-simple.json:%s"
                                   % e.__str__())
+                            print("[PyPIWebCrawler]now downloading data")
                         finally:
                             if f:
                                 f.close()

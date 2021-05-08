@@ -44,8 +44,6 @@ class PyPIDependencyAnalyzer:
 
                 remained_dependency_list.remove(package_name)
                 for pack_name in current_package_include_names:
-                    if pack_name == 'plette[validation]':
-                        print('ok')
                     if pack_name not in parsed_package_names \
                             and pack_name not in remained_dependency_list:
                         remained_dependency_list.append(pack_name)
@@ -73,7 +71,8 @@ class PyPIDependencyAnalyzer:
 
 
 if __name__ == "__main__":
-    sample_package_names = ['requests']
+    sample_package_names = ['124214214']
+    # sample_package_names = ['requests']
     # package_names = ['django', 'pip', 'requests']
     analyzer = PyPIDependencyAnalyzer(sample_package_names)
     result_package, result_names = analyzer.analyze()

@@ -31,7 +31,7 @@ class PyPIWebCrawler:
                             f = open(path + 'requirement-simple.json', 'r')
                             basic_info = json.load(f)
                             self.result[package_name] = basic_info
-                            print("[parse succeed]package_name: %s" % package_name)
+                            print("[PyPIWebCrawler]parse succeed - package_name: %s" % package_name)
                             is_succeed = True
                         except Exception as e:
                             print("[PyPIWebCrawler]Error when parsing requirement-simple.json:%s"
@@ -45,6 +45,8 @@ class PyPIWebCrawler:
                 res = requests.get(
                     "https://pypi.org/pypi/%s/json" %
                     package_name)
+                if res.status_code != 200:
+                    raise RuntimeError("Internet Error, status code=%d" % res.status_code)
                 response = res.json()
                 # print(json.dumps(response,sort_keys=True, indent=2))
 
@@ -72,10 +74,10 @@ class PyPIWebCrawler:
                 f.close()
 
                 self.result[package_name] = basic_info
-                print('[parse succeed]package_name: %s' % package_name)
+                print('[PyPIWebCrawler]parse succeed - package_name: %s' % package_name)
             except Exception as e:
-                print('[exception]Exception occurred when parsing %s: %s' % (package_name, e.__str__()))
-                print('[parse failed]package_name: %s' % package_name)
+                print('[PyPIWebCrawler][exception]Exception occurred when parsing %s: %s' % (package_name, e.__str__()))
+                print('[PyPIWebCrawler]parse failed - package_name: %s' % package_name)
                 self.result[package_name] = {"Exception": e.__str__()}
                 continue
         return self.result

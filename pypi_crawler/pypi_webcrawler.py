@@ -87,5 +87,4 @@ if __name__ == "__main__":
     package_names = ["pip", "requests", "django"]
     wrapper = PyPIWebCrawler(package_names)
     print(wrapper.parse())
-    print("test")
     print("[PyPI_WebCrawler]OK")

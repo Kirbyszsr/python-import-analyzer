@@ -1,2 +1,2 @@
 astunparse==1.6.3
-requests
+requests>1.6

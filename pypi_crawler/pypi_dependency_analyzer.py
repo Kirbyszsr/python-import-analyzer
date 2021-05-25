@@ -71,7 +71,7 @@ class PyPIDependencyAnalyzer:
 
 
 if __name__ == "__main__":
-    sample_package_names = ['124214214']
+    sample_package_names = ['requests']
     # sample_package_names = ['requests']
     # package_names = ['django', 'pip', 'requests']
     analyzer = PyPIDependencyAnalyzer(sample_package_names)
